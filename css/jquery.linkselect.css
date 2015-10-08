@@ -1,0 +1,163 @@
+/*
+ * define styles for linkselect plug-in
+ */
+a.linkselect-link,
+span.linkselect-disabled {
+	-khtml-user-select: none;
+	-o-user-select: none;
+	-moz-user-select: none;
+	-moz-user-focus: ignore; 
+	-moz-user-input: disabled; 
+	
+	text-decoration: none;
+	font-family: "arial";
+	font-weight: bold;
+	font-size: 12px;
+	line-height: normal;
+	background-color: #A91D4A;
+	background-image: url(img/down_arrow.png);
+	background-repeat: no-repeat;
+	background-position: right center;
+	display: block;
+	color: #FFF;
+	width: 875px;	
+	padding-left: 5px;
+}
+
+a.linkselect-link span.linkselect-link-icon,
+span.linkselect-disabled span.linkselect-link-icon {
+	display: none;
+}
+
+a.linkselect-link:hover, a.linkselect-link-focus {
+	color: #FFF !important;
+	background-color: #A91D4A !important;
+	outline: 1px solid transparent; /* prevent the link from being outlined */
+}
+
+a.linkselect-link-open {
+	outline: 0; /* prevent the link from being outlined */
+}
+
+span.linkselect-disabled {
+	filter: alpha(opacity=75);
+	-moz-opacity: 0.75;
+	opacity: 0.75;
+}
+
+.linkselect-container {
+	position: absolute;
+	/* this is required to correctly calculate the width of the container */
+	left: 0; top: 0;
+	display: none;
+	/* 
+	 * move the box up 3 pixels so that the title bar aligns with original anchor text, this 
+	 * should be adjusted according to the padding/margin differences between the two links 
+	 */
+	margin-top: 20px;
+	/*width: 875px;*/
+	max-width: 6000px;
+	z-index: 50000;
+	
+	/*Scroll IE*/
+	scrollbar-3dlight-color: #A91D4A;
+	scrollbar-arrow-color: #FFFFFF;
+	scrollbar-base-color: #A91D4A;
+	scrollbar-darkshadow-color: #A91D4A;
+	scrollbar-face-color: #A91D4A;
+	scrollbar-highlight-color: #DDD;
+	scrollbar-shadow-color: #DDD;
+}
+
+.linkselect-container .linkselect-title {
+	display: block;
+	background-color:  #a8004c;
+	background-image: url(img/down_arrow.png);
+	background-repeat: no-repeat;
+	background-position: 100% 50% !important;
+	color: #A91D4A !important;
+	padding-right: 20px !important;
+	white-space: nowrap;
+	font-size: 11px !important;
+	font-weight: bold !important;
+	line-height: 17px !important;
+
+	cursor: default;	
+	-khtml-user-select: none;
+	-o-user-select: none;
+	-moz-user-select: none;
+	-moz-user-focus: ignore; 
+	-moz-user-input: disabled; 
+}
+
+.linkselect-container .linkselect-title.placeholder {
+	cursor: pointer;	
+}
+
+.linkselect-container .linkselect-title span {
+	display: block;
+	padding: 3px 4px;
+}
+
+.linkselect-container .linkselect-scrollable {
+	/*width: 875px;*/
+	background-color: white;
+	border-left: 1px solid #bbb;
+	border-right: 1px solid #bbb;
+	border-bottom: 1px solid #bbb;
+	margin: 0;
+	padding: 0 0 5px 0;
+	font-size: 11px;
+	line-height: 17px;
+	text-align: left;
+	overflow: auto;
+	max-height: 100px;
+	clear: both;
+}
+
+.linkselect-container ul {
+	list-style-type: decimal !important;
+	margin: 0px;
+	padding: 0px;
+}
+
+.linkselect-container ul li.linkselect-selected { 
+	background-color: #A91D4A;
+	color: #fff;
+	font-weight: bold;
+}
+
+.linkselect-container ul li.linkselect-current { 
+	background-color: #DDD;
+	color: #A91D4A;
+	font-weight: bold;
+}
+
+.linkselect-container ul li.placeholder { 
+	display: none;
+}
+
+.linkselect-container ul li {
+	display: block;
+	margin: 0;
+	padding: 2px;
+	font-size: 12px;
+	line-height: 17px;
+	cursor: pointer;
+	-khtml-user-select: none;
+	-o-user-select: none;
+	-moz-user-select: none;
+	-moz-user-focus: ignore; 
+	-moz-user-input: disabled; 
+}
+
+.linkselect-container ::-webkit-scrollbar {
+	width: 15px;
+}
+
+.linkselect-container ::-webkit-scrollbar-thumb {
+	background: -webkit-linear-gradient(left, #A91D4A, #A91D4A);
+	border: 1px solid #DDD;
+	box-shadow: inset 1px 0 0 rgba(255, 255, 255, 0.4);
+}
+

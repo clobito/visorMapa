@@ -1,0 +1,126 @@
+@import url(http://fonts.googleapis.com/css?family=Open+Sans:400,400italic,700italic,800,700,600italic,600,300);
+
+body{
+	background: #fff;
+	color: #616161;
+	font-family: 'Open Sans', sans-serif;
+	font-size: 100%;
+	margin: 0 auto;
+}
+
+/*** Helper classes ***/
+
+.clearfix:before,
+.clearfix:after {
+	content: " ";
+	display: table;
+}
+
+.clearfix:after {
+	clear: both;
+}
+
+.clearfix {
+	*zoom: 1;
+}
+
+/*** heading & text ***/
+
+.serviceTitle_h3{
+	display: inline-block;
+	font-size: 1.2em;
+	font-weight: 600;
+	margin: 1px 14px;
+	padding: 0;
+}
+
+/*** structure ***/
+
+.mainContainer_div{
+	min-height: 450px;
+	width: 100%;
+}
+
+.menuContainer_div{
+	/* background-color: #3ad; */
+	border-bottom: 1px dashed #B0AEAE;
+	height: 90px;
+	margin: 7px auto;
+	width: 100%;
+}
+
+
+#content_div{
+	margin: 10px auto;
+	min-height: 650px;
+/*	opacity: 1;
+	transition: opacity 1.8s;*/
+	width: 98%;
+}
+
+/***** back top styles *****/
+
+.back-to-top {
+	background-color: rgba(235, 235, 235, 0.80);
+	bottom: 6em;
+	color: #3c3c3c;
+	display: none;
+	font-size: 12px;
+	font-weight: bold;
+	padding: 1em;
+	position: fixed;
+	right: 0px;
+	text-decoration: none;
+}
+
+.back-to-top:hover{
+	background-color: rgba(135, 135, 135, 0.50);
+}
+
+/*** Main menu styles ***/
+
+.menuContainer_nav{
+	min-height: 50px;
+	margin-right: 14px;
+	float: right;
+}
+
+.menuContainer_nav div{
+	background-color: #E8E8E8;
+	cursor: pointer;
+	display: inline-block;
+	float: left;
+	margin: 7px 2px;
+	height: 35px;
+	text-align: center;
+	/*min-width: 130px;*/
+	width: 160px;
+}
+
+.menuContainer_nav div a{
+	color: #4F4F4F;
+	display: block;
+	font-size: 0.8em;
+	height: 35px;
+	line-height: 1.2;
+	padding: 2px;
+	text-decoration: none;
+	width: 97%;
+}
+
+.selectItem{
+	box-shadow: 1px 1px 1px #4d4d4d;
+	color: #fff !important;
+	/*font-weight: 700;*/
+}
+
+.demo{background-color: #deab3e !important;}
+
+.agro, .comercio, .construc, .cuentas{background-color: #ee7b23 !important;}
+
+.ambient{background-color: #93c033 !important;}
+
+.contexT{background-color: #4b8096 !important;}
+
+/*** view controls styles ***/
+

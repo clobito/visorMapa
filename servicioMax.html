@@ -1,0 +1,963 @@
+﻿<!DOCTYPE html>
+<html> 
+  <head> 
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=7,IE=8,IE=9">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no">
+    <meta name="description" id="description" content="">
+	<link href="https://www.dane.gov.co/geoportal/sige-theme/images/favicon.ico" rel="Shortcut Icon">
+    <link rel="stylesheet" href="https://serverapi.arcgisonline.com/jsapi/arcgis/3.4/js/esri/css/esri.css">
+	<link rel="stylesheet" href="css/style.css">
+	
+	<link rel="stylesheet" href="css/jquery.linkselect.css" type="text/css"><!--combobox style -->
+	<link rel="stylesheet" href="css/jquery.linkmultselect.css" type="text/css"><!--multiple combobox style -->
+	<link rel="stylesheet" href="css/responsive.css" type="text/css" media="screen and (max-width: 959px)"><!--Nueva hoja estilos- para responsive -->
+
+<!--Slider style -->
+	
+	<script src="js/jquery-1.7.2.min.js"></script>
+	<script src="js/jquery-ui-1.8.20.custom.min.js"></script>
+	<script src="js/jquery.linkselect.js"></script>
+	<script src="js/jquery.linkmultselect.js"></script>
+	
+    <style> 
+      html, body { height: 100%; width: 100%; margin: 0; }
+	 .seleccionar {
+	 -webkit-appearance: none;  /*Removes default chrome and safari style*/
+      -moz-appearance: none; /* Removes Default Firefox style*/
+    appearance: none;
+		text-decoration: none;
+	font-family: "arial";
+	font-weight: bold;
+	font-size: 12px;
+	line-height: normal;
+	background-color: #A91D4A;
+	background-image: url(img/down_arrow.png);
+	background-repeat: no-repeat;
+	background-position: right center;
+	display: block;
+	color: #FFF;
+	width: 375px;
+	padding-left: 5px;
+}
+ 
+
+
+	#busqueda{
+		display: block;
+		position: absolute;
+		z-index: 14;
+		top: 85px;
+		left: 330px;
+	}
+
+	#botoneraDesc,
+	#botoneraLey{
+		height: 20px;
+		position: absolute;
+		width: 20px;
+	}
+
+	#botoneraDesc{
+		top: 88px;
+		left: 11px;
+		z-index: 11;
+	}
+
+	#botoneraLey{
+		top: 18px;
+		right: 18px;
+		z-index: 13;
+	}
+
+	#marco{
+		background: #fff;
+		color: #000;
+		font-family: arial,sans-serif;
+		left: 3px;
+		margin: 5px;
+		padding: 15px;
+		padding-top: 20px;
+		position: absolute;
+		text-align: justify;
+		top: 80px;
+		width: 280px;
+		z-index: 10;
+	}
+	
+	#ventana{
+		background: #fff;
+		color: #000;
+		font-family: arial,sans-serif;
+		font-size: 12px;
+		height: auto;
+		right: 8px;
+		margin: 5px;
+		padding: 10px;
+		position: absolute;
+		text-align: center;
+		top: 10px;
+		width: 210px;
+		z-index: 12;
+	}
+
+	#excel{
+		position: absolute; 
+		width: 110px; 
+		bottom: 20px; 
+		right: 20px; 
+		z-index: 20;
+	}
+
+	#icono_fs{
+		position: absolute; 
+		bottom: 69px; 
+		right: 50px; 
+		z-index: 20;
+	}
+	
+	#gp_logo{
+		background: #fff;
+		position: absolute; 
+		bottom: 20px; 
+		left: 8px; 
+		z-index: 20;
+	}
+	
+	.sombra{
+		opacity: .9;
+		border: 1px solid #ccc;
+		box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+		-moz-box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+		-webkit-box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+	}
+
+	.titulo {
+		color: #A91D4A;
+		display: inline;
+		font-size: 18px;
+		font-weight: bold;
+		width: 240px;
+	}
+
+	.descripcion {
+		color: #362B36;
+		font-size: 12px;
+	}
+	
+	.capas {
+		color: #362B36;
+		font-size: 12px;
+	}
+	
+	.vinculo {
+		color: #555;
+	}
+	
+	:-webkit-full-screen {
+	  background: #FFFFFF;
+	}
+	:-moz-full-screen {
+	  background: #FFFFFF;
+	}
+
+	a img {
+		border: none;
+	}
+        
+	.tabladiv{
+		display: table;
+	}
+	
+	.rowdiv{
+		display: row;
+	}
+	
+	.celldiv{
+		display: table-cell;
+	}
+        
+	.esriLegendLayerLabel{
+		color: #A91D4A;
+		font-weight: bold;
+	}
+
+	.esriLegendLayer{
+		font-size: 10px;
+		text-align: left;
+	}
+
+	.esriLegendServiceLabel{
+		display:none;
+	}
+
+	.esriPopup .titlePane {
+		background-color: #A91D4A;
+		border-color: #A91D4A #A91D4A -moz-use-text-color;
+	}
+	
+	.esriSimpleSlider div {
+		width: 20px;
+		height: 20px;
+		font-size: 18px;
+		font-family: verdana,helvetica;
+		font-weight: bold;
+		line-height: 18px;
+	}
+	
+	.esriSimpleSlider {
+		position: absolute;
+		text-align: center;
+		border: 1px solid #ccc;
+		background-color: #FFFFFF;
+		color: #666666;
+		cursor: pointer;
+		-webkit-user-select: none;
+		-moz-user-select: none;
+		-ms-user-select: none;
+		user-select: none;
+		-webkit-border-radius: 0px;
+		-moz-border-radius: 0px;
+		-o-border-radius: 0px;
+		border-radius: 0px;
+	}
+	
+	.esriSimpleSliderBR {
+		bottom: 70px;
+		right: 20px;
+	}
+
+	.esriSimpleSliderVertical .esriSimpleSliderIncrementButton {
+		border-bottom: 1px solid #ccc;
+	}
+	.simpleGeocoder .esriGeocoder {
+		display: block;
+		width: 100%;
+		margin: 0;
+		border: 1px solid #ccc;
+		background: #fff;
+		-webkit-border-radius: 0px;
+		border-radius: 0px;
+		box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+		-moz-box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+		-webkit-box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+	}
+
+	.simpleGeocoder .esriGeocoderResults {
+		display: none;
+		z-index: 99;
+		width: 100%;
+		position: absolute;
+		left: 0;
+		top: 100%;
+		margin: -1px 0 0;
+		border: 1px solid #ccc;
+		border-top: 0;
+		padding: 0;
+		background: #fff;
+		-webkit-border-radius: 0px;
+		border-radius: 0px;
+		box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+		-moz-box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+		-webkit-box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+	}
+	
+	@media screen and (max-width: 960px){
+		
+		#carga, #map{
+			width: 100% !important;
+		}
+
+	}
+	
+	@media screen and (max-width: 768px){
+
+		.simpleGeocoder .esriGeocoder, #busqueda{
+			display: none !important;
+			}
+	}	
+    </style> 
+
+	<script src="js/jquery-1.7.2.min.js"></script><!--libreria llamada-->
+    <script>var dojoConfig = { parseOnLoad: true };</script> 
+    <script src="https://serverapi.arcgisonline.com/jsapi/arcgis/3.4/"></script> 
+    <script> 
+      dojo.require("dijit.layout.BorderContainer");
+      dojo.require("dijit.layout.ContentPane");
+      dojo.require("dijit.layout.AccordionContainer");
+      dojo.require("esri.map");
+      dojo.require("esri.dijit.Legend");
+      dojo.require("esri.layers.FeatureLayer");
+      dojo.require("esri.layers.agstiled");
+      dojo.require("esri.dijit.Geocoder");
+      dojo.require("esri.arcgis.utils");
+      dojo.require("dijit.form.CheckBox");
+      dojo.require("dojo.html");
+      dojo.require("dojox.data.XmlStore");
+      
+		//Variable global para la leyenda
+		var tituloLeyenda;
+		
+		var map, identifyTarea, identifyParametros, imagen = "", capaUrl = "", contenido = "", metadata = "", fs = false, leyendaCapas = [], infoCapas = [], ocultaCapas = [], leyendaIds = [], identifyIds = [];
+	
+	dojo.ready(init);
+	
+	
+	function cargarOpcionesGrupo(grupo,categoria,indicador){
+		$.get("datosGruposTematicos.xml", function(xml) {					
+															
+					var optionsGrupo = [];
+					$("#grupo").append("<option value='0'>Seleccione</option>");
+					$(xml).find("grupo").each( function(index) {
+						
+							var name = $(this).attr("name");
+							var value = $(this).attr("value");
+							if(value==grupo){
+								$("#grupo").append("<option value='"+value+"' selected>"+name+"</option>");
+								buscarSubCategoria(value,categoria,indicador);
+							}else{
+								$("#grupo").append("<option value='"+value+"'>"+name+"</option>");
+							}
+					});
+			});
+	}
+	
+	function buscarSubCategoria(grupo,categoria,indicador){
+		$.get("datosGruposTematicos.xml", function(xml) {
+				$("#categ").empty();
+				$("#categ").append("<option value='0'>Seleccione</option>");
+					$(xml).find("grupo[value='" + grupo + "']").each( function() {						
+						$(this).find("categoria").each(function(index) {
+							var name = $(this).attr("name");
+							var value = $(this).attr("value");
+							if(value==categoria){
+								$("#categ").append("<option value='"+value+"' selected>"+name+"</option>");
+								setSubCat(categoria,indicador);
+							}else{
+								$("#categ").append("<option value='"+value+"'>"+name+"</option>");
+							}
+						})
+						
+					});
+				});
+	}
+	function setSubCat(categ,indicador){
+	$.get("datosGruposTematicos.xml", function(xml) {
+					$("#subcateg").empty();
+					$("#subcateg").append("<option value='0'>Seleccione</option>");
+					$(xml).find("categoria[value='" + categ + "']").each( function() {
+						console.log(categ);
+						$(this).find("servicio").each(function(index) {
+						
+							var title = $(this).attr("title");
+							var id = $(this).attr("id");
+							var service = "servicio.html?s=" + id;
+							if(id==indicador){
+								$("#subcateg").append("<option selected value='"+id+"'>"+title+"</option>");
+							}else{
+								$("#subcateg").append("<option value='"+id+"'>"+title+"</option>");
+							}
+						})
+						
+					});
+					});
+	}
+	
+	function cargaIFrame(url) {
+		window.location="servicioMax.html?s=" + url+"&c="+$("#grupo option:selected").val()+"&sc="+$("#categ option:selected").val();
+	}
+			
+    function init() {
+		cargarOpcionesGrupo(getURLParam("c"),getURLParam("sc"),getURLParam("s"));
+		var servicio = getURLParam("s");
+
+		var indicadores = new dojox.data.XmlStore({url: "datosGruposTematicos.xml", rootItem: "servicio"});
+
+		var obtieneIndicador = function(items, request){
+                    
+                        var item = items[0];
+
+			//****************************************************************************//
+			//																			  //	
+			//		Parámetros de Entrada Editables										  //
+			//																			  //	
+			//****************************************************************************//
+	
+			//ID de la capa de leyenda
+			//si hay mas de una capa para mostrar colocar valores separados por comas, por ej: [3,7]
+			leyendaIds = indicadores.getValue(item, "@legend").split(",");
+	
+			if(indicadores.getValue(item, "@image") != null && indicadores.getValue(item, "@image") != "")
+			{
+				imagen = indicadores.getValue(item, "@image");
+			}
+	
+			//ID de la capa de identificación
+			//si hay mas de una capa para mostrar colocar valores separados por comas, por ej: [3,7]
+			identifyIds = indicadores.getValue(item, "@identify").split(",");
+	
+			//Direccion URL del servicio de capas
+			capaUrl = indicadores.getValue(item, "@layer");
+	
+			//Url del Archivo Excel u otro formato
+			if(indicadores.getValue(item, "@table") != null && indicadores.getValue(item, "@table") != "")
+			{
+				contenido = "<a href='" + indicadores.getValue(item, "@table") +  "' id='tabla' style='cursor:pointer;'>";
+				contenido += "<img src='sige-theme/images/sige/servicios/descargar.png' alt='Descargue el Excel' title='Descargue el Excel'>";
+				contenido += "</a>";
+			}
+
+			//Url de los metadatos del indicador
+			if(indicadores.getValue(item, "@metadata") != null && indicadores.getValue(item, "@metadata") != "")
+			{
+				metadata = "<a href='" + indicadores.getValue(item, "@metadata") +  "' target='_blank' class='vinculo'>Metadato de la Investigación</a><br><br>";
+			}
+	
+			if(getURLParam("fullscreen") != null && getURLParam("fullscreen") != "")
+			{
+				fs = true;
+			}
+			//Fin de Parámetros Editables
+			
+			configuraIndicador();
+			
+		}
+		
+		var request = indicadores.fetch({onComplete: obtieneIndicador, query: {"@id":servicio}, queryOptions: {ignoreCase: true} });
+		
+    }
+	  
+	function configuraIndicador(){
+		
+		dojo.query("#icono_fs").style("visibility", "hidden");
+		dojo.query("#gp_logo").style("visibility", "hidden");
+		
+		//Cuando el navegador no es IE, se muestra el botón de full screen
+		if(!dojo.isIE && fs){
+			dojo.query("#icono_fs").style("visibility", "visible");
+		}
+		
+		if(fs){
+			dojo.query("#gp_logo").style("visibility", "visible");
+		}
+		
+		var peticionCapa = esri.request({
+		  "url": capaUrl,
+		  "content": {
+			"f": "json"
+		  },
+		  "callbackParamName": "callback"
+		});
+		
+		peticionCapa.then(peticionExitosa, peticionFallida);
+		
+	}
+		
+	function iniciarMapa(titulo, capas) {
+	
+		tituloLeyenda = titulo;
+        
+		var limites = new esri.geometry.Extent({"xmin":-9495735,"ymin":-83164,"xmax":-7186725,"ymax":1406441,"spatialReference":{"wkid":102100}});
+		
+		map = new esri.Map("map", { 
+		  extent: limites,
+		  sliderStyle: "small",
+		  sliderPosition: "bottom-right",
+		  minZoom: 6,
+		  maxZoom: 10,
+		  logo: false
+        });
+
+		//Configura el buscador
+		var Geocoder = new esri.dijit.Geocoder({
+			autoComplete: true,
+			arcgisGeocoder:{
+				placeholder: "Introducir una Ubicación"
+			},
+		  map: map
+        },dojo.byId("busqueda"));
+		//Inicia el Buscador
+		Geocoder.startup();
+		
+		//Capa principal
+		var capa = new esri.layers.ArcGISTiledMapServiceLayer(capaUrl);
+		map.addLayers([capa]);
+		infoCapas.push({layer:capa,title:titulo});
+		
+		//Prepara la capa para la leyenda, procurando solo mostrar la capa adecuada
+		for(layer in capas)
+		{  
+			if( !buscaEnArray(leyendaIds, layer) ) {
+				ocultaCapas.push(layer);
+			}
+		}
+		
+		leyendaCapas.push({layer:capa,title:titulo,hideLayers:ocultaCapas});
+		
+		dojo.connect(map,"onUpdateEnd",function(){
+		  esri.hide(dojo.byId("carga"));
+		});
+
+		dojo.connect(map,"onUpdateStart",function(){
+		  esri.show(dojo.byId("carga"));
+		});
+		
+  		//Prepara el mapa para el Identify
+		dojo.connect(map,"onLoad", prepararMapa);
+		
+        //Agrega la leyenda y otros elementos
+        dojo.connect(map,"onLayersAddResult",function(results){
+
+			var peticionLeyenda = esri.request({
+			  "url": capaUrl + "/legend",
+			  "content": {
+				"f": "json"
+			  },
+			  "callbackParamName": "callback"
+			});
+			
+			peticionLeyenda.then(peticionLeyendaExitosa, peticionFallida);
+			
+			//Carga en el html el link del excel
+			dojo.html.set(dojo.byId("excel"), contenido);
+			
+			//Carga en el html el link de los metadatos
+			dojo.html.set(dojo.byId("metadata"), metadata);
+			
+			//Personaliza Redes Sociales
+			//Twitter
+			dojo.attr(dojo.byId("twitter"), "data-url", window.location.href);
+			dojo.attr(dojo.byId("twitter"), "data-text", "Indicadores DANE: " );
+			
+            var ruta = encodeURIComponent(window.location.href);    
+                        
+			//Facebook
+			var fb = "https://www.facebook.com/plugins/like.php?href=" + ruta + "&width=450&height=21&colorscheme=light&layout=button_count&action=like&show_faces=true&send=false&appId=383515278388083";
+			dojo.attr(dojo.byId("facebook"), "src", fb);
+			
+			//Google Plus
+                        var gp = "<iframe id='googleplus' frameborder='0' hspace='0' marginheight='0' marginwidth='0' scrolling='no' style='position: static; top: 0px; width: 90px; margin: 0px; border-style: none; left: 0px; visibility: visible; height: 20px;' tabindex='0' vspace='0' width='100%' id='I0_1380050201931' src='https://apis.google.com/u/0/_/+1/fastbutton?bsv=o&amp;usegapi=1&amp;count=true&amp;size=medium&amp;hl=en-US&amp;origin=http%3A%2F%2Fwww.dane.gov.co&amp;url=" + ruta + ";' name='I0_1380050201931' data-gapiattached='true' title='+1'></iframe>";
+                        dojo.byId("googleplus").innerHTML = gp;
+                        
+                        document.getElementById("description").setAttribute("content", "Indicadores DANE: " + titulo);
+			
+			//agrega check boxes
+                        /*
+			dojo.forEach(infoCapas,function(layer){         
+			var nombreCapa = layer.title;
+			var checkBox = new dijit.form.CheckBox({
+				name: "checkBox" + layer.layer.id,
+				value: layer.layer.id,
+				checked: layer.layer.visible,
+				onChange: function(evt) {
+				  var clayer = map.getLayer(this.value);
+				  clayer.setVisibility(!clayer.visible);
+				  this.checked = clayer.visible;
+				}
+			});
+			  
+			  //agrega el checkbox con su etiqueta
+			  dojo.place(checkBox.domNode,dojo.byId("capas"),"after");
+			  var checkLabel = dojo.create('label',{'for':checkBox.name, innerHTML:nombreCapa, style:{fontSize: "12px"} },checkBox.domNode,"last");
+				dojo.place("<br />",checkLabel,"after");
+			  });
+			  */
+        });
+		
+	}
+	
+	function peticionExitosa(respuesta, io) {
+		var descripcion, titulo, capas = [];
+		//obtiene el Titulo y el Nombre del Servicio
+		if ( respuesta.hasOwnProperty("documentInfo") ) {
+			descripcion = respuesta.documentInfo.Comments;
+			titulo = respuesta.documentInfo.Title;
+			dojo.byId("titulo").innerHTML = titulo;
+			document.title = titulo;
+			dojo.byId("descripcion").innerHTML = descripcion;	
+		}
+		//Obtiene todos los sublayers con el objeto JSON
+		if ( respuesta.hasOwnProperty("layers") ) {
+			 capas = respuesta.layers;
+		}
+		
+		iniciarMapa(titulo, capas);
+		
+    }
+	
+	function peticionLeyendaExitosa(respuesta, io) {
+		//Obtiene todos los sublayers con el objeto JSON
+		
+		if ( respuesta.hasOwnProperty("layers") ) {
+
+			var leyendaHtml = '<div style="display: block; " class="esriLegendService">';
+			leyendaHtml += '<table width="95%">';
+			leyendaHtml += '<tbody>';
+			leyendaHtml += '<tr>';
+			leyendaHtml += '<td align="">';
+			leyendaHtml += '<span class="esriLegendServiceLabel">' + tituloLeyenda + '</span>';
+			leyendaHtml += '</td>';
+			leyendaHtml += '</tr>';
+			leyendaHtml += '</tbody>';
+			leyendaHtml += '</table>';
+
+			var layers = respuesta.layers;
+
+			var j = 0;
+			for (var i = 0; i < layers.length; i++) {
+				if( buscaEnArray(leyendaIds, layers[i].layerId) ) {
+					
+					leyendaHtml += '<div style="display: block; " class="">';
+					leyendaHtml += '<table width="95%" class="esriLegendLayerLabel">';
+					leyendaHtml += '<tbody>';
+					leyendaHtml += '<tr>';
+					leyendaHtml += '<td align="">' + layers[i].layerName + '</td>';
+					leyendaHtml += '</tr>';
+					leyendaHtml += '</tbody>';
+					leyendaHtml += '</table>';
+					
+					leyendaHtml += '<table cellpadding="0" cellspacing="0" width="95%" class="esriLegendLayer">';
+					leyendaHtml += '<tbody>';
+					
+					if( imagen == "" ){
+					
+						var leyendas = layers[i].legend;
+						for(var j = 0; j < leyendas.length; j++) {
+							leyendaHtml += '<tr>';
+							leyendaHtml += '<td width="35">';
+							leyendaHtml += '<img src="data:' + leyendas[j].contentType + ';base64,' + leyendas[j].imageData + '" border="0" style="opacity:1">';
+							leyendaHtml += '</td>';
+							leyendaHtml += '<td>';
+							leyendaHtml += '<table width="95%" dir="ltr">';
+							leyendaHtml += '<tbody>';
+							leyendaHtml += '<tr>';
+							leyendaHtml += '<td align="">' + leyendas[j].label + '</td>';
+							leyendaHtml += '</tr>';
+							leyendaHtml += '</tbody>';
+							leyendaHtml += '</table>';
+							leyendaHtml += '</td>';
+							leyendaHtml += '</tr>';
+						}
+					
+					} else {
+
+						leyendaHtml += '<tr>';
+						leyendaHtml += '<td>';
+						leyendaHtml += '<img src="' + imagen + '">';
+						leyendaHtml += '</td>';
+						leyendaHtml += '</tr>';
+					
+					}
+			
+					leyendaHtml += '</tbody>';
+					leyendaHtml += '</table>';
+					leyendaHtml += '</div>';
+					
+				}
+
+			}
+				
+			leyendaHtml += '</div>';
+			
+			dojo.byId("leyenda").innerHTML = leyendaHtml;
+		}
+		
+    }
+	
+	function peticionFallida(error, io) {
+      alert(dojo.toJson(error, true));
+    }
+	
+	//Reposiciona el mapa
+	function vistaInicial() {
+		var limites = new esri.geometry.Extent({"xmin":-9495735,"ymin":-83164,"xmax":-7186725,"ymax":1406441,"spatialReference":{"wkid":102100}});
+		map.setExtent(limites);
+	}
+	
+	function prepararMapa(map) {
+	
+		dojo.connect(map, "onClick", ejecutarIdentifyTarea);
+		
+		identifyTask = new esri.tasks.IdentifyTask(capaUrl);
+		
+		identifyParametros = new esri.tasks.IdentifyParameters();
+        identifyParametros.tolerance = 1;
+        identifyParametros.layerOption = esri.tasks.IdentifyParameters.LAYER_OPTION_TOP;
+		identifyParametros.layerIds = identifyIds;
+        identifyParametros.width  = map.width;
+        identifyParametros.height = map.height;
+	}
+	
+	function ejecutarIdentifyTarea(evt) {
+
+        identifyParametros.geometry = evt.mapPoint;
+        identifyParametros.mapExtent = map.extent;
+       
+        var diferido = identifyTask.execute(identifyParametros);
+
+        diferido.addCallback(function(respuesta) {     
+          // Callback para consultar todos los features    
+          return dojo.map(respuesta, function(resultado) {
+            var feature = resultado.feature;
+			var cadenaInfo = "<b>" + resultado.layerName + "</b><br><br>";
+			// Guarda el array de todos los features identificados.
+			for(var atributo in feature.attributes) {
+				if(atributo != "OBJECTID" 
+					&& atributo != "OBJECTID_1" 
+					&& atributo != "Shape" 
+					&& atributo != "Shape_Length" 
+					&& atributo != "Shape_Area" 
+					&& atributo != "Shape_Leng" 
+					&& feature.attributes[atributo].toLowerCase() != "null") {
+					cadenaInfo += "<b>" + atributo + "</b>: " + feature.attributes[atributo] + "<br>";
+				}
+			}
+			
+			var template = new esri.InfoTemplate("", cadenaInfo);
+			feature.setInfoTemplate(template);
+            
+            return feature;
+          });
+        });
+
+      
+        // Muestra el array de todos los features identificados.
+        map.infoWindow.setFeatures([ diferido ]);
+        map.infoWindow.show(evt.mapPoint);		
+	}
+	
+	function buscaEnArray(arr, obj) {
+		for(var i=0; i<arr.length; i++) {
+			if (arr[i] == obj) 
+			return true;
+		}
+	}	
+
+	//Acciones Descripción
+	var togglerA; //variable extraida
+	require(["dojo/fx/Toggler", "dojo/fx", "dojo/dom", "dojo/on", "dojo/domReady!"],
+	function(Toggler, coreFx, dom, on){
+	  togglerA = new Toggler({
+		node: "marco",
+		showFunc: coreFx.wipeIn,
+		hideFunc: coreFx.wipeOut
+	  });
+	  on(dom.byId("ocultarDesc"), "click", function(e){
+		togglerA.hide();
+		dojo.style(dom.byId("mostrarDesc"), {display: ""});
+		dojo.style(dom.byId("ocultarDesc"), {display: "none"});
+	  });
+	  on(dom.byId("mostrarDesc"), "click", function(e){
+		togglerA.show();
+		dojo.style(dom.byId("mostrarDesc"), {display: "none"});
+		dojo.style(dom.byId("ocultarDesc"), {display: ""});
+	  });
+	});
+	
+	//Acciones Leyenda
+	var togglerB; //variable extraida
+	require(["dojo/fx/Toggler", "dojo/fx", "dojo/dom", "dojo/on", "dojo/domReady!"],
+	function(Toggler, coreFx, dom, on){
+	  togglerB = new Toggler({
+		node: "ventana",
+		showFunc: coreFx.wipeIn,
+		hideFunc: coreFx.wipeOut
+	  });
+	  on(dom.byId("ocultarLey"), "click", function(e){
+		togglerB.hide();
+		dojo.style(dom.byId("mostrarLey"), {display: ""});
+		dojo.style(dom.byId("ocultarLey"), {display: "none"});
+	  });
+	  on(dom.byId("mostrarLey"), "click", function(e){
+		togglerB.show();
+		dojo.style(dom.byId("mostrarLey"), {display: "none"});
+		dojo.style(dom.byId("ocultarLey"), {display: ""});
+	  });
+	});
+	
+	//Funcion para que detecte el ancho de la pantalla y cambie el estilo --modo responsive
+	$(window).resize(function() {
+		if ($(window).width() < 768){
+			togglerA.hide();
+			togglerB.hide();
+			$("#mostrarLey").show();
+			$("#ocultarLey").hide();
+			$("#mostrarDesc").show();
+			$("#ocultarDesc").hide();
+		}
+		
+		else{
+			togglerA.show();
+			togglerB.show();
+			$("#mostrarLey").hide();
+			$("#ocultarLey").show();
+			$("#mostrarDesc").hide();
+			$("#ocultarDesc").show();
+		}
+    });
+
+	require(["dojo/dnd/Moveable", "dojo/dom", "dojo/domReady!"],
+	function(Moveable, dom){
+		var marcoMov = new Moveable(dom.byId("marco-mov"));
+		var ventanaMov = new Moveable(dom.byId("ventana-mov"));
+	});
+
+	//Medida Estandar 960px; height: 450px
+	
+	function getURLParam( name )
+	{  
+		name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");  
+		var regexS = "[\\?&]"+name+"=([^&#]*)";  
+		var regex = new RegExp( regexS );  
+		var results = regex.exec( window.location.href );  
+		if( results == null )    
+			return "";  
+		else    
+			return results[1];
+	}
+	
+	//Función para pantalla completa
+	function lanzarPantallaCompleta(element) {
+	  if(element.requestFullScreen) {
+		element.requestFullScreen();
+	  } else if(element.mozRequestFullScreen) {
+		element.mozRequestFullScreen();
+	  } else if(element.webkitRequestFullScreen) {
+		element.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
+	  }
+	}
+	
+	function efectosPantallaCompleta() {
+		
+		var element = document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement;		
+		
+		if(element)
+		{	
+			dojo.query("#icono_fs").style("visibility", "hidden");
+		} else{
+			dojo.query("#icono_fs").style("visibility", "visible");
+		}
+		
+	}
+	
+	// Eventos
+	document.addEventListener("fullscreenchange", function(e) {
+		efectosPantallaCompleta();
+	});
+	document.addEventListener("mozfullscreenchange", function(e) {
+		efectosPantallaCompleta();
+	});
+	document.addEventListener("webkitfullscreenchange", function(e) {
+		efectosPantallaCompleta();
+	});
+	
+    </script> 
+    <title></title> 
+  </head> 
+  
+  <body style="position: relative;"> 
+  
+  
+	
+    <div id="content" data-dojo-type="dijit.layout.BorderContainer" data-dojo-props="design:'headline', gutters:false" style="width: 100%; height: 100%; margin: 0;"> 
+
+	
+	
+      <div id="carga" style="width:960px; height:450px; background-color:#FFFFFF; text-align: center; vertical-align: middle;">
+		<img src="img/loading.gif" width="100" height="100"/>
+	  </div>
+	  
+	  <div id="map" data-dojo-type="dijit.layout.ContentPane" data-dojo-props="region:'center'" style="width:100%; height:100%; background-color:#EBFFFF;">
+		<div id="Iframe_Map" style="z-index: 12">		
+			<div id="Menu_combo_Container">
+				<div id="Combo_Content">
+					<table>
+						<tr class="heightTR">
+						<td class="widthTitulo">
+						<div class="toolTipC" id="toolTipC">Categor&iacute;a:</div>
+						</td>
+						<td class="widthContenido">
+					<select id="grupo" name="grupo" title="" class="seleccionar" onChange="buscarSubCategoria(grupo.value)"></select>
+					</td>
+					<td  class="widthTitulo">
+					<div class="toolTipI" id="toolTipC">Sub-Categor&iacute;a:</div>
+					</td>
+					<td class="widthContenido">
+					<select id="categ" name="categ" title="" class="seleccionar" onChange="setSubCat(categ.value)"></select>
+					</td>
+					</tr>
+					<tr class="heightTR">
+					<td class="widthTitulo">
+					<div class="toolTipC" id="toolTipI">Indicador:</div>
+					</td>
+					<td class="widthContenido" colspan="3">
+					<select id="subcateg" name="subcateg" style="width: 880px;" title="" class="seleccionar" onChange="cargaIFrame(subcateg.value)"></select>
+					</td>
+					</tr>
+					</table>
+				</div>
+			</div>
+		</div>
+	
+		   <div id="ventana-mov" style="position:relative;">
+			   <div id="botoneraLey">
+				   <img src="sige-theme/images/sige/estilos/minus.png" id="ocultarLey" title="Minimizar Leyenda"/>
+				   <img src="sige-theme/images/sige/estilos/plus.png" id="mostrarLey" title="Maximizar Leyenda" style="display:none;"/>
+			   </div>
+			   <div id="ventana" class="sombra">
+					<div id="leyenda"></div>
+			   </div>
+		   </div>
+		   
+			<div id="marco-mov" style="position:relative;">
+				<div id="botoneraDesc">
+				   <img src="sige-theme/images/sige/estilos/minus.png" id="ocultarDesc" title="Minimizar Descripción"/>
+				   <img src="sige-theme/images/sige/estilos/plus.png" id="mostrarDesc" title="Maximizar Descripción" style="display:none;"/>
+				</div>
+				<div id="marco" class="sombra">
+					<div class="titulo" id="titulo"></div><br><br>
+					<div class="descripcion" id="descripcion"></div><br>
+					<div class="descripcion" id="metadata"></div>
+					<!--div id="capas"></div><br-->
+					<div class="descripcion"><a href="javascript:vistaInicial();" class="vinculo">Restablecer a vista predeterminada</a></div>
+					<br>
+                                        <div class="tabladiv">
+                                            <div class="rowdiv">
+                                                    
+                                                <div class="celldiv">
+                                                    <!-- Twitter -->
+													<a href="https://twitter.com/share" id="twitter" class="twitter-share-button" data-url="" data-text="Indicadores DANE: " data-lang="es">Tweet</a>
+													<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>													
+                                                </div>
+						
+						<!-- Google Plus -->
+						<div id="googleplus" class="celldiv"></div>
+                                            
+                                            </div>    
+                                            <div class="rowdiv">
+                                                    
+						<div class="celldiv">
+                                                    <!-- Facebook -->
+                                                    <iframe id="facebook" frameborder="0" marginheight="0" marginwidth="0" scrolling="no" style="position: static; top: 0px;margin: 0px; border-style: none; left: 0px; visibility: visible; height: 20px;" src=""></iframe>
+						</div>
+                                                
+                                            </div>    
+					</div>
+				</div>
+			</div>
+			
+		   <div id="busqueda"></div>
+		   <div id="excel"></div>
+			<div id="icono_fs">
+				<a id="pantallacompleta" onclick="lanzarPantallaCompleta(document.documentElement);" target="_blank" title="Mostrar este Indicador en Pantalla Completa"><img src="css/img/pantalla_completa.png"></a>
+			</div>
+			<div id="gp_logo" class="sombra">
+				<a href="https://www.dane.gov.co/geoportal/" target="_blank" title="Ir al Geoportal">
+					<img src="css/img/geoportal.png">
+				</a>
+			</div>
+      </div>
+    </div>
+  </body> 
+ 
+</html>

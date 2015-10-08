@@ -1,0 +1,73 @@
+@media screen and (min-width:800px){
+	#Menu_combo_Container{
+		width:100%;
+		height: auto;
+	}
+	#Combo_Content {
+		width: 100%;
+		height: auto;
+	}
+	.table_combo{
+		width: 100%;
+		height: auto;
+	}
+	.widthTitulo {
+		width: 5%;
+		height: auto;
+	}
+	.widthContenido{
+		width: 45%;
+		height: auto;		
+	}
+	.toolTipC, .toolTipI {
+		width: 100%;
+	}
+	 a.indicador-link, a.linkselect-link{
+		width: 95%;
+		
+	 }
+	 .indicador-scrollable {
+		width: 100%;
+	 }
+	 .linkselect-scrollable {
+		 width: 100%;
+	 }
+}
+@media screen and (max-width:800px){
+	#Menu_combo_Container{
+		width:100%;
+		height: auto;
+	}
+	#Combo_Content {
+		width: 100%;
+		height: auto;
+	}
+	.table_combo{
+		width: 100%;
+		height: auto;
+	}
+	.widthTitulo {
+		width: 5%;
+		height: auto;
+	}
+	.widthContenido{
+		width: 45%;
+		height: auto;		
+	}
+	.toolTipC, .toolTipI {
+		width: 100%;
+	}
+	 a.indicador-link, a.linkselect-link{
+		width: 95%;
+		
+	 }
+	 .indicador-scrollable {
+		width: 100%;
+		
+	 }
+	 .linkselect-scrollable {
+		 width: 100%;
+		 
+	 }
+	 }	  
+	

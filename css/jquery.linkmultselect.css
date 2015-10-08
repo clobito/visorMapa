@@ -1,0 +1,165 @@
+/*
+ * define styles for linkmultselect plug-in
+ */
+a.linkmultselect-link,
+span.linkmultselect-disabled {
+	-khtml-user-select: none;
+	-o-user-select: none;
+	-moz-user-select: none;
+	-moz-user-focus: ignore; 
+	-moz-user-input: disabled; 
+	
+	text-decoration: none;
+	font-family: "arial";
+	font-weight: bold;
+	font-size: 12px;
+	line-height: normal;
+	background-color: #ddd;
+	background-image: url(img/down_arrow.png);
+	background-repeat: no-repeat;
+	background-position: right center;
+	display: block;
+	color: #A91D4A;
+	width: 695px;
+	margin-left: 20px;
+	padding-left: 5px;
+}
+
+a.linkmultselect-link span.linkmultselect-link-icon,
+span.linkmultselect-disabled span.linkmultselect-link-icon {
+	display: inline;
+}
+
+a.linkmultselect-link:hover, a.linkmultselect-link-focus {
+	color: #A91D4A !important;
+	background-color: #ddd !important;
+	outline: 1px solid transparent; /* prevent the link from being outlined */
+}
+
+a.linkmultselect-link-open {
+	outline: 0; /* prevent the link from being outlined */
+}
+
+span.linkmultselect-disabled {
+	filter: alpha(opacity=75);
+	-moz-opacity: 0.75;
+	opacity: 0.75;
+}
+
+.linkmultselect-container {
+	/*position: absolute;*/
+	/* this is required to correctly calculate the width of the container */
+	left: 0; top: 0;
+	display: inline;
+	/* 
+	 * move the box up 3 pixels so that the title bar aligns with original anchor text, this 
+	 * should be adjusted according to the padding/margin differences between the two links 
+	 */
+	margin-top: 20px;
+	width: 635px;
+	max-width: 6000px;
+	z-index: 50000;
+	
+	/*Scroll IE*/
+	scrollbar-3dlight-color: #A91D4A;
+	scrollbar-arrow-color: #FFFFFF;
+	scrollbar-base-color: #A91D4A;
+	scrollbar-darkshadow-color: #A91D4A;
+	scrollbar-face-color: #A91D4A;
+	scrollbar-highlight-color: #DDD;
+	scrollbar-shadow-color: #DDD;
+}
+
+.linkmultselect-container .linkmultselect-title {
+	display: block;
+	background-color:  #a8004c;
+	background-image: url(img/down_arrow.png);
+	background-repeat: no-repeat;
+	background-position: 100% 50% !important;
+	color: #A91D4A !important;
+	padding-right: 20px !important;
+	white-space: nowrap;
+	font-size: 11px !important;
+	font-weight: bold !important;
+	line-height: 17px !important;
+
+	cursor: default;	
+	-khtml-user-select: none;
+	-o-user-select: none;
+	-moz-user-select: none;
+	-moz-user-focus: ignore; 
+	-moz-user-input: disabled; 
+}
+
+.linkmultselect-container .linkmultselect-title.placeholder {
+	cursor: pointer;	
+}
+
+.linkmultselect-container .linkmultselect-title span {
+	display: block;
+	padding: 3px 4px;
+}
+
+.linkmultselect-container .linkmultselect-scrollable {
+	width: 700px;
+	background-color: white;
+	border-left: 1px solid #bbb;
+	border-right: 1px solid #bbb;
+	border-bottom: 1px solid #bbb;
+	border-top: 1px solid #bbb;
+	margin-left: 10px;
+	margin-top: 5px;
+	padding: 0 0 5px 0;
+	font-size: 11px;
+	line-height: 17px;
+	text-align: left;
+	overflow: auto;
+	max-height: 60px;
+	clear: both;
+}
+
+.linkmultselect-container ul {
+	list-style-type: decimal !important;
+	margin: 0px;
+	padding: 0px;
+}
+
+.linkmultselect-container ul li.linkmultselect-selected { 
+	background-color: #A91D4A;
+	color: #fff;
+	font-weight: bold;
+}
+
+.linkmultselect-container ul li.linkmultselect-current { 
+	background-color: #DDD;
+	color: #A91D4A;
+	font-weight: bold;
+}
+
+.linkmultselect-container ul li.placeholder { 
+	display: inline;
+}
+
+.linkmultselect-container ul li {
+	display: block;
+	margin: 0;
+	padding: 2px;
+	font-size: 12px;
+	line-height: 17px;
+	cursor: pointer;
+	-khtml-user-select: none;
+	-o-user-select: none;
+	-moz-user-select: none;
+	-moz-user-focus: ignore; 
+	-moz-user-input: disabled; 
+}
+
+.linkmultselect-container ::-webkit-scrollbar {
+	width: 15px;
+}
+
+.linkmultselect-container ::-webkit-scrollbar-thumb {
+	background: -webkit-linear-gradient(left, #A91D4A, #A91D4A);
+	border: 1px solid #DDD;
+	box-shadow: inset 1px 0 0 rgba(255, 255, 255, 0.4);
+}
