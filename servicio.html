@@ -248,7 +248,9 @@
 
 	<script src="js/jquery-1.7.2.min.js"></script><!--libreria llamada-->
     <script>var dojoConfig = { parseOnLoad: true };</script> 
-    <script src="https://serverapi.arcgisonline.com/jsapi/arcgis/3.4/"></script> 
+    <!-- API ArcGis -->
+    <!--<script src="https://serverapi.arcgisonline.com/jsapi/arcgis/3.4/"></script> -->
+    <script type="text/javascript" src="js/vendor/init.js"></script>
     <script> 
       dojo.require("dijit.layout.BorderContainer");
       dojo.require("dijit.layout.ContentPane");
@@ -271,14 +273,18 @@
 	dojo.ready(init);
 	
     function init() {
-	  
-		var servicio = getURLParam("s");
-
-		var indicadores = new dojox.data.XmlStore({url: "datosGruposTematicos.xml", rootItem: "servicio"});
+	  /*Fecha actualizado: 13/10/2015
+	  Cambio realizado: Actualización del archivo fuente XML*/
+	  	//var xmlUrl	=	"datosGruposTematicos.xml";
+	  	var xmlUrl	=	"datosGruposTematicosNube.xml";
+		var servicio= 	getURLParam("s");
+		alert("URL Servicio =>"+servicio);		
+		var indicadores = new dojox.data.XmlStore({url: xmlUrl, rootItem: "servicio"});		
 
 		var obtieneIndicador = function(items, request){
                     
-                        var item = items[0];
+        	var item = items[0];
+       
 
 			//****************************************************************************//
 			//																			  //	
@@ -301,6 +307,9 @@
 	
 			//Direccion URL del servicio de capas
 			capaUrl = indicadores.getValue(item, "@layer");
+			//Configuración del URL			
+			alert("Capa:"+capaUrl);
+			
 	
 			//Url del Archivo Excel u otro formato
 			if(indicadores.getValue(item, "@table") != null && indicadores.getValue(item, "@table") != "")
@@ -357,22 +366,122 @@
 	}
 		
 	function iniciarMapa(titulo, capas) {
-	
+	/*Fecha actualizado: 13/10/2015
+	Cambio realizado: Adaptación librerias ArcGIS 3.14: map, ArcGISTiledMapServiceLayer y Geocoder*/	
 		tituloLeyenda = titulo;
-        
-		var limites = new esri.geometry.Extent({"xmin":-9495735,"ymin":-83164,"xmax":-7186725,"ymax":1406441,"spatialReference":{"wkid":102100}});
+        var mapMain;
+        var geoCoder;
+        require([
+	        "esri/map",
+	        "esri/layers/ArcGISTiledMapServiceLayer",
+	        "esri/dijit/Geocoder",
+	        "esri/graphic",
+	        "esri/InfoTemplate",
+	        "esri/SpatialReference",
+	        "esri/geometry/Extent",
+	        "esri/layers/GraphicsLayer",
+	        "dojo/domReady!"
+        ], function (
+        	Map, ArcGISTiledMapServiceLayer, Geocoder, Graphic, InfoTemplate, SpatialReference, Extent, GraphicsLayer
+        	)
+        	{
+        		mapMain =	new Map("map",
+        		{
+        			basemap: "streets",
+        			center: [-74.095938, 4.647016],        			    			
+        			zoom:6,
+        			sliderPosition: "bottom-right"
+        		});
+
+        		//Carga de la capa en la nueva libreria
+        		var capa = new ArcGISTiledMapServiceLayer(capaUrl);
+        		//Adición de la capa al mapa
+        		mapMain.addLayer(capa);
+
+        		//Definición limites del mapa
+        		var extMapa = new esri.geometry.Extent( 
+        		{
+        			"xmin":-9495735,
+    				"ymin":-83164,
+    				"xmax":-7186725,
+    				"ymax":1406441,
+    				"spatialReference":
+    				{
+    					"wkid":102100
+    				}
+        		});
+        		//Adición de los limites al mapa
+        		mapMain.setExtent(extMapa);
+
+        		infoCapas.push({layer:capa,title:titulo});
+
+        		//Prepara la capa para la leyenda, procurando solo mostrar la capa adecuada
+				for(layer in capas)
+				{  
+					if( !buscaEnArray(leyendaIds, layer) ) {
+						ocultaCapas.push(layer);
+					}
+				}
+
+				leyendaCapas.push({layer:capa,title:titulo,hideLayers:ocultaCapas});
+
+				//Implementación del geoCoder
+				geoCoder = new Geocoder(
+				{
+					map: map,
+					autoComplete: true,
+					arcgisGeocoder:
+					{
+						placeholder: "Introducir una Ubicación"
+					}
+
+				},dojo.byId("busqueda"));
+
+				//Evento para carga de la capa del mapa
+				mapEvents = mapMain.on("load", setLoadMap);
+
+				//Método para procesar carga del mapa
+				function setLoadMap(mapEvents)
+				{
+					prepararMapa(mapEvents);
+				}
+
+				//Eventos de carga/descarga de capas del mapa
+				mapEvents = mapMain.on("update-end", setLoadEnd);
+
+				//Método para procesar el evento "update-end"
+				function setLoadEnd()
+				{
+					esri.hide(dojo.byId("carga"));
+					$("#excel").html(contenido);
+					esri.show(dojo.byId("excel"));
+				}
+
+				//Eventos de carga/descarga del mapa
+				mapEvents = mapMain.on("update-start", setLoadStart);
+
+				//Método para procesar el evento "update-start"
+				function setLoadStart()
+				{
+					esri.show(dojo.byId("carga"));
+				}
+				
+        	});
+		//var limites = new esri.geometry.Extent({"xmin":-9495735,"ymin":-83164,"xmax":-7186725,"ymax":1406441,"spatialReference":{"wkid":102100}});
 		
-		map = new esri.Map("map", { 
+		/*map = new esri.Map("map", { 
 		  extent: limites,
 		  sliderStyle: "small",
 		  sliderPosition: "bottom-right",
 		  minZoom: 6,
 		  maxZoom: 10,
 		  logo: false
-        });
+        });*/
+		
+
 
 		//Configura el buscador
-		var Geocoder = new esri.dijit.Geocoder({
+		/*var Geocoder = new esri.dijit.Geocoder({
 			autoComplete: true,
 			arcgisGeocoder:{
 				placeholder: "Introducir una Ubicación"
@@ -380,12 +489,14 @@
 		  map: map
         },dojo.byId("busqueda"));
 		//Inicia el Buscador
-		Geocoder.startup();
+		Geocoder.startup();*/
 		
 		//Capa principal
-		var capa = new esri.layers.ArcGISTiledMapServiceLayer(capaUrl);
-		map.addLayers([capa]);
-		infoCapas.push({layer:capa,title:titulo});
+		/*var capa = new esri.layers.ArcGISTiledMapServiceLayer(capaUrl);
+		//map.addLayers([capa]);
+		mapMain.addLayer(capa);*/
+
+		/*infoCapas.push({layer:capa,title:titulo});
 		
 		//Prepara la capa para la leyenda, procurando solo mostrar la capa adecuada
 		for(layer in capas)
@@ -406,11 +517,11 @@
 		});
 		
   		//Prepara el mapa para el Identify
-		dojo.connect(map,"onLoad", prepararMapa);
+		dojo.connect(map,"onLoad", prepararMapa);*/
 		
         //Agrega la leyenda y otros elementos
         dojo.connect(map,"onLayersAddResult",function(results){
-
+        	alert("Contenido =>"+contenido);
 			var peticionLeyenda = esri.request({
 			  "url": capaUrl + "/legend",
 			  "content": {
@@ -421,6 +532,7 @@
 			
 			peticionLeyenda.then(peticionLeyendaExitosa, peticionFallida);
 			
+
 			//Carga en el html el link del excel
 			dojo.html.set(dojo.byId("excel"), contenido);
 			
@@ -476,7 +588,7 @@
 			descripcion = respuesta.documentInfo.Comments;
 			titulo = respuesta.documentInfo.Title;
 			dojo.byId("titulo").innerHTML = titulo;
-			document.title = titulo;
+			document.title = titulo;			
 			dojo.byId("descripcion").innerHTML = descripcion;	
 		}
 		//Obtiene todos los sublayers con el objeto JSON

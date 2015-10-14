@@ -1,0 +1,94 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+Indicaciones de parametrización
+
+<categoria>
+Para las etiquetas <categoria> a la variable "value" se asigna un nombre relacionado con la categoría sin espacios ni caracteres especiales como tíldes o letra ñ.
+ej: Calidad_Vida
+a la variable se le asigna el nombre de la categoría tal y como se quiere que se muestre en el visor.
+ej: Calidad de Vida
+
+<servicio>
+Para las etiquetas <servicio>, se encuentran las siguientes variables
+title: Título que llevará el servicio en el visor.
+ej: title="Distribución de la Población Total"
+
+image: Ruta de la imagen png del servicio que se muestra en el carrusel.
+ej: image="img/imagen.png"
+
+legend: número de la capa que se mostrará como leyenda; si hay mas de una capa, se deben colocar los número separados por comas y sin espacios como 4,1.
+ej: legend="4"
+
+identify: número de la capa que se mostrará como cuadro de identificación; si hay mas de una capa, se deben colocar los números separados por coma y sin espacios como 4,1.
+ej: identify="4" metadata="http://formularios.dane.gov.co/Anda_4_1/index.php/catalog/109"
+
+layer: url del servicio.
+ej: layer="http://190.25.231.241:8030/arcgis/rest/services/INDICADORES_DE_POBLACION/Cache_MpiosDistribPoblacionTotal_2005/MapServer"
+
+table: Ruta del archivo excel.
+ej:  table="documents/Pobl_DistribuciónDePoblacionSegunMunicipio_2005.xls"
+
+metadata: URL de los metadatos del indicador.
+ej:  metadata="http://formularios.dane.gov.co/Anda_4_1/index.php/catalog/109"
+
+Ejemplo general
+
+<categoria value="Calidad_Vida" name="Calidad de Vida">
+	<servicio id="" title="Distribución de la Población Total" image="img/imagen.png" legend="4" identify="4" metadata="http://formularios.dane.gov.co/Anda_4_1/index.php/catalog/109" layer="http://190.25.231.241:8030/arcgis/rest/services/INDICADORES_DE_POBLACION/Cache_MpiosDistribPoblacionTotal_2005/MapServer" table="documents/Pobl_DistribuciónDePoblacionSegunMunicipio_2005.xls"/>
+</categoria>
+
+-->
+
+<categorias>
+
+
+	
+	<grupo value="PobrezaCondVida" name="Pobreza y condiciones de vida">	
+
+	<categoria value="PobrezayDesigualdad" name="Pobreza y desigualdad">
+                
+				<servicio id="Pobreza_6" title="Incidencia de la pobreza multidimensional, según municipio 2005"	image="" legend="4,5" identify="5" metadata="http://www.dane.gov.co/files/noticias/Pobreza_nuevametodologia.pdf" layer="http://tiles.arcgis.com/tiles/I4YYbPSw13ugmbAP/arcgis/rest/services/Cache_MpiosIPM_2005/MapServer"	table="http://www.dane.gov.co/files/investigaciones/condiciones_vida/pobreza/anexos_pobreza_2012.xls"/>     
+				
+	</categoria>
+	
+	<categoria value="NecesidadesBasicasInsatisfechas" name="Necesidades básicas insatisfechas">
+            <servicio id="NecesidadesBasicasInsatisfechas_1" title="Necesidades básicas insatisfechas (NBI) total, según municipio 2005"	image="" legend="5,4" identify="5" metadata="http://www.dane.gov.co/files/investigaciones/boletines/censo/Bol_nbi_censo_2005.pdf" layer="http://tiles.arcgis.com/tiles/I4YYbPSw13ugmbAP/arcgis/rest/services/Cache_MpiosNBITotal_2005/MapServer"	table="http://www.dane.gov.co/censo/files/resultados/NBI_total_municipios_30_Jun_2012.xls"/>
+				
+	</categoria>
+
+	 	
+   </grupo >
+	
+	
+	<grupo value="PoblacionyDemografia" name="Población y Demografía">	
+
+	<categoria value="Distribucion_Poblacion" name="Distribución de la población">
+		<servicio id="Distribucion_Poblacion_2" title="Distribución de la población en cabecera, según municipio 2005" image="img\PO_MpiosDistribPoblacionCabeceraSegunMpio.png" legend="1" identify="1" metadata="http://formularios.dane.gov.co/Anda_4_1/index.php/catalog/109" layer="http://tiles.arcgis.com/tiles/I4YYbPSw13ugmbAP/arcgis/rest/services/Cache_MpiosDistribPoblacionCabecera_2005/MapServer" table="http://190.25.231.242/redatam/CG2005/Total_poblacion_conciliada_mpal.xls"/>
+		<servicio id="Distribucion_Poblacion_3" title="Distribución de la población en resto, según municipio 2005" image="" legend="4" identify="4" metadata="http://formularios.dane.gov.co/Anda_4_1/index.php/catalog/109" layer="http://tiles.arcgis.com/tiles/I4YYbPSw13ugmbAP/arcgis/rest/services/Cache_MpiosDistribPoblacionResto_2005/MapServer" table="http://190.25.231.242/redatam/CG2005/Total_poblacion_conciliada_mpal.xls"/>
+		<servicio id="Distribucion_Poblacion_4" title="Densidad de población total, según municipio 2005" image="" legend="4" identify="4" metadata="http://formularios.dane.gov.co/Anda_4_1/index.php/catalog/109" layer="http://tiles.arcgis.com/tiles/I4YYbPSw13ugmbAP/arcgis/rest/services/Cache_MpiosDensidadDePoblacionTotal_2005/MapServer" table="documents/Pobl_DensidadDePoblacionSegunMunicipio_2005.xls"/>
+		<servicio id="Distribucion_Poblacion_5" title="Densidad de población en cabecera, según municipio 2005" image="" legend="9" identify="9" metadata="http://formularios.dane.gov.co/Anda_4_1/index.php/catalog/109" layer="http://tiles.arcgis.com/tiles/I4YYbPSw13ugmbAP/arcgis/rest/services/Cache_MpiosDensidadPoblaCabecera_2005/MapServer" table="documents/Pobl_DensidadDePoblacionSegunMunicipio_2005.xls"/>  
+		<servicio id="Distribucion_Poblacion_6" title="Densidad de población en resto, según municipio 2005" image="" legend="4" identify="4" metadata="http://formularios.dane.gov.co/Anda_4_1/index.php/catalog/109" layer="http://tiles.arcgis.com/tiles/I4YYbPSw13ugmbAP/arcgis/rest/services/Cache_MpiosDistribPoblacionResto_2005/MapServer" table="documents/Pobl_DensidadDePoblacionSegunMunicipio_2005.xls"/>
+	
+	</categoria>
+	
+	<categoria value="EstructuraComposicionPoblacion" name="Estructura y composición de la población">
+      
+        <servicio id="EstructuraComposicionPoblacion_1" title="Relación de niños-mujer, según municipio 2005" image="" legend="7" identify="1,2,3,4,5,6,7" metadata="http://formularios.dane.gov.co/Anda_4_1/index.php/catalog/109" layer="http://tiles.arcgis.com/tiles/I4YYbPSw13ugmbAP/arcgis/rest/services/Cache_MpiosIndRelaciónNiñosMujer_2005_Crplt/MapServer" table="documents/Pobl_IndicadoresdeEstructuraSegunMunicipio_2005.xls"/>
+		<servicio id="EstructuraComposicionPoblacion_2" title="Indice de Envejecimiento, según municipio 2005" image="" legend="9" identify="1,2,3,4,5,6,7,8,9" metadata="http://formularios.dane.gov.co/Anda_4_1/index.php/catalog/109" layer="http://tiles.arcgis.com/tiles/I4YYbPSw13ugmbAP/arcgis/rest/services/Cache_MpiosIndEnvejecimiento_2005_Crplt/MapServer" table="documents/Pobl_IndicadoresdeEstructuraSegunMunicipio_2005.xls"/>
+		<servicio id="EstructuraComposicionPoblacion_3" title="Indice de Masculinidad, según municipio 2005" image="" legend="8" identify="1,2,3,4,5,6,7,8" metadata="http://formularios.dane.gov.co/Anda_4_1/index.php/catalog/109" layer="http://tiles.arcgis.com/tiles/I4YYbPSw13ugmbAP/arcgis/rest/services/Cache_MpiosIndMasculinidad_2005_Crplt/MapServer" table="documents/Pobl_IndicadoresdeEstructuraSegunMunicipio_2005.xls"/> 
+		<servicio id="EstructuraComposicionPoblacion_4" title="Relación de Dependencia Demográfica, según municipio 2005" image="" legend="7" identify="1,2,3,4,5,6,7" metadata="http://formularios.dane.gov.co/Anda_4_1/index.php/catalog/109" layer="http://tiles.arcgis.com/tiles/I4YYbPSw13ugmbAP/arcgis/rest/services/Cache_MpiosIndRelaDependenciaDemografica_2005_Crplt/MapServer" table="documents/Pobl_IndicadoresdeEstructuraSegunMunicipio_2005.xls"/>
+	    <servicio id="EstructuraComposicionPoblacion_5" title="Población que se autoreconoce perteneciente a un grupo étnico, según municipio 2005" image="" legend="5,4" identify="5" metadata="http://formularios.dane.gov.co/Anda_4_1/index.php/catalog/109" layer="http://tiles.arcgis.com/tiles/I4YYbPSw13ugmbAP/arcgis/rest/services/Cache_MpiosPoblacionAutorecPertenGrupoEtnico_2005/MapServer" table="documents/Pobl_PoblacxGruposEtnicosSegunMunicipio_2005.xls"/>
+		<servicio id="EstructuraComposicionPoblacion_6" title="Población que se autoreconoce como afrocolombiana, según municipio 2005" image="" legend="5,4" identify="5" metadata="http://formularios.dane.gov.co/Anda_4_1/index.php/catalog/109" layer="http://tiles.arcgis.com/tiles/I4YYbPSw13ugmbAP/arcgis/rest/services/Cache_MpiosPoblacionAfrocolombiana_2005/MapServer" table="documents/Pobl_PoblacxGruposEtnicosSegunMunicipio_2005.xls"/>
+		<servicio id="EstructuraComposicionPoblacion_7" title="Población que se autoreconoce como índigena, según municipio 2005" image="" legend="5,4" identify="5" metadata="http://formularios.dane.gov.co/Anda_4_1/index.php/catalog/109" layer="http://tiles.arcgis.com/tiles/I4YYbPSw13ugmbAP/arcgis/rest/services/Cache_MpiosPoblacionIndigena_2005/MapServer" table="documents/Pobl_PoblacxGruposEtnicosSegunMunicipio_2005.xls"/>
+	    <servicio id="EstructuraComposicionPoblacion_9" title="Población menor de 15 años, según municipio 2005" image="" legend="4" identify="4" metadata="http://formularios.dane.gov.co/Anda_4_1/index.php/catalog/109" layer="http://tiles.arcgis.com/tiles/I4YYbPSw13ugmbAP/arcgis/rest/services/Cache_MpiosPorcPoblMenor15anos_2005/MapServer" table="documents/Pobl_PoblacxGrandesGruposdeEdadSegunMunicipio_2005.xls"/>
+		<servicio id="EstructuraComposicionPoblacion_10" title="Población de 15 a 59 años, según municipio 2005" image="" legend="4" identify="4" metadata="http://formularios.dane.gov.co/Anda_4_1/index.php/catalog/109" layer="http://tiles.arcgis.com/tiles/I4YYbPSw13ugmbAP/arcgis/rest/services/Cache_MpiosPorcPobl15_59anos_2005/MapServer" table="documents/Pobl_PoblacxGrandesGruposdeEdadSegunMunicipio_2005.xls"/>
+		<servicio id="EstructuraComposicionPoblacion_11" title="Población de 60 o más años, según municipio 2005" image="" legend="4" identify="4" metadata="http://formularios.dane.gov.co/Anda_4_1/index.php/catalog/109" layer="http://tiles.arcgis.com/tiles/I4YYbPSw13ugmbAP/arcgis/rest/services/Cache_MpiosPorcPobl60oMasAnos_2005/MapServer" table="documents/Pobl_PoblacxGrandesGruposdeEdadSegunMunicipio_2005.xls"/>	
+	
+	</categoria>
+	
+	
+	</grupo >
+	 
+
+	
+</categorias>
