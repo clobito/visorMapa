@@ -16,9 +16,11 @@
 	<script src="js/jquery-ui-1.8.20.custom.min.js"></script>
 	<script src="js/jquery.linkselect.js"></script>
 	<script src="js/jquery.linkmultselect.js"></script>
-	
+	<script type="text/javascript" src="js/visorMapa.js"></script>
 	<script type="text/javascript">
-		
+			/*
+			Fecha actualizado: 14/10/2015
+			Observaciones: Implementación en archivo externo => visorMapa.js*/
 			//****************************************************************************//
 			//																			  //	
 			//		Parámetros de Entrada Editables										  //
@@ -27,7 +29,7 @@
 			//Fecha actualizado: 13/10/2015
 			//Cambio realizado: Actualizar carga de archivo source XML que apunta a la nube.
 			
-			var todosGrupos = true;
+			/*var todosGrupos = true;
 
 			//var xmlUrl=	"datosGruposTematicos.xml";
 
@@ -42,7 +44,7 @@
 			}
 			
 			var cat = 0;
-			var subcat = 0;
+			var subcat = 0;*/
 			
 			
 			
@@ -61,7 +63,7 @@
 			*/
 			//Fin de Parámetros Editables
 			
-			$(function(){				
+			/*$(function(){				
 				$("#control").click(function(event) {
 					event.preventDefault();
 					$("#Combo_Content").toggle(333);
@@ -74,9 +76,9 @@
 					
 				});
 			
-			});
+			});*/
 
-			$(window).resize(function() {	
+			/*$(window).resize(function() {	
 
 				var altodev = $(window).height();							
 				$("#icono_amp").css('top',altodev-90);
@@ -99,9 +101,9 @@
 					$(".linkselect-link").css('font-size','12px');	
 				}
 				
-				});
+				});*/
 			
-			$(document).ready(function(){
+			/*$(document).ready(function(){
 				
 				var altodev = $(window).height();							
 				$("#icono_amp").css('top',altodev-90);
@@ -160,7 +162,7 @@
 							optionsGrupo.push({value: value, text: name, selected: seleccionado});
 						}
 					});
-					$("#grupo").linkselect("replaceOptions", optionsGrupo);
+					$("#grupo").linkselect("replaceOptions", optionsGrupo);*/
 					
 				
 					
@@ -197,13 +199,13 @@
 						}
 					});
 					$("#categ").linkselect("replaceOptions", optionsCat);
-					*/
+					
 				});
 			
-			});
+			});*/
 			
 			
-			function buscarSubCategoria(grupo){			
+			/*function buscarSubCategoria(grupo){			
 				var optionsCat = [];
 				var seleccionado = false;
 				
@@ -231,10 +233,10 @@
 					$("#categ").linkselect("replaceOptions", optionsCat);
 									
 				});			
-			}
+			}*/
 			
 			
-			function setSubCat(categ) {
+			//function setSubCat(categ) {
 			
 			/*var inancho = $("a.indicador-link").width();
 			console.log(inancho);
@@ -243,7 +245,7 @@
 			console.log(asd);*/
 						
 			
-				var optionsSubCat = [];
+				/*var optionsSubCat = [];
 				var seleccionado = false;
 				
 				$.get(xmlUrl, function(xml) {
@@ -281,9 +283,9 @@
 					
 				});
 				
-			}
+			}*/
 			
-			function mostrarToolTip(title, e) {
+			/*function mostrarToolTip(title, e) {
 				if(e == "in"){
 					$("#toolTip").text(title);
 				} else if(e == "out"){
@@ -311,9 +313,9 @@
 					return "";  
 				else    
 					return results[1];
-			}
+			}*/
 			
-			function menuclic(){				
+			/*function menuclic(){				
 				var inancho = $("a.indicador-link").width();
 				console.log(inancho);
 				$(".indicador-container").css('width',inancho);
@@ -324,7 +326,7 @@
 				$(".linkselect-container").css('width',liancho);
 				var asd = $(".linkselect-container").width();
 				console.log(asd);
-			}
+			}*/
 	
 		</script>
 
