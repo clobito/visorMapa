@@ -133,14 +133,16 @@ function setSubCat(categ)
 	});
 				
 }
-
+/*	Fecha actualizado: 15/10/2015
+Cambio realizado: Carga del archivo XML del portal Dane.*/
 //Declaraciones globales
 var todosGrupos = true;
 
 //var xmlUrl=	"datosGruposTematicos.xml";
-
-var xmlUrl	=	"datosGruposTematicosNube.xml";
-
+//XML de la nube - Contingencia
+//var xmlUrl	=	"datosGruposTematicosNube.xml";
+//XML del portal Dane
+var xmlUrl	=	"datosGruposTematicosMapasige.xml";
 var noGrupo = getURLParam("indicador");
 
 if(noGrupo != "" && !isNaN(noGrupo)){
@@ -196,7 +198,9 @@ $(window).resize(function()
 
 $(document).ready(function()
 {
-	
+	/*Fecha actualizado: 15/10/2015
+	Cambio realizado: Ocultar controles Maximizar y descarga Hoja de calculo al inicio de la petición*/
+
 	var altodev = $(window).height();							
 	$("#icono_amp").css('top',altodev-90);
 	$("#Iframe_Map").css('height',altodev);
@@ -259,7 +263,9 @@ $(document).ready(function()
 		});
 		$("#grupo").linkselect("replaceOptions", optionsGrupo);
 		
-	
+		//Ocultar controles al inicio de la petición
+		//$('#icono_amp').attr('style','visibility:hidden');
+		$('#excel').attr('style','visibility:hidden');
 		
 		/*
 		

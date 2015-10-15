@@ -1,4 +1,6 @@
 ﻿<!DOCTYPE html>
+<!-- Fecha actualizado: 14/10/2015
+Cambio realizado: Inclusión de libreria de estilos correspondiente a la Libreria ArcGIS 3.14-->
 <html> 
   <head> 
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -6,7 +8,9 @@
     <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no">
     <meta name="description" id="description" content="">
 
-    <link rel="stylesheet" href="https://serverapi.arcgisonline.com/jsapi/arcgis/3.4/js/esri/css/esri.css">
+    <!--<link rel="stylesheet" href="https://serverapi.arcgisonline.com/jsapi/arcgis/3.4/js/esri/css/esri.css">
+    <link rel="stylesheet" href="http://js.arcgis.com/3.14/esri/css/esri.css">-->
+    <link rel="stylesheet" href="css/vendor/esri.css">
 	<link rel="stylesheet" href="css/style.css">
     <style> 
       html, body { height: 100%; width: 100%; margin: 0; }
@@ -248,11 +252,16 @@
 
 	<script src="js/jquery-1.7.2.min.js"></script><!--libreria llamada-->
     <script>var dojoConfig = { parseOnLoad: true };</script> 
-    <!-- API ArcGis -->
+    <!-- API ArcGis 3.14-->
     <!--<script src="https://serverapi.arcgisonline.com/jsapi/arcgis/3.4/"></script> -->
     <script type="text/javascript" src="js/vendor/init.js"></script>
+    <!-- Archivo externo correspondiente a la implementación de JavaScript de la vista servicio.html-->
+    <script language="javascript" src="js/servicio.js"></script>
     <script> 
-      dojo.require("dijit.layout.BorderContainer");
+	    /*Fecha actualizado: 14/10/2015
+    	Cambio realizado: Implementación en archivo externo => servicio.js
+    	Observaciones: Inclusión en vista Ln 258*/
+      /*dojo.require("dijit.layout.BorderContainer");
       dojo.require("dijit.layout.ContentPane");
       dojo.require("dijit.layout.AccordionContainer");
       dojo.require("esri.map");
@@ -266,80 +275,22 @@
       dojo.require("dojox.data.XmlStore");
       
 		//Variable global para la leyenda
-		var tituloLeyenda;
+		var tituloLeyenda;		
+		
+		//Fecha actualizado: 14/102015
+		//Cambio realizado: Variable global para el mapa, para usar la opción "Reestablecer a vista predeterminada"
+		var mapMain;
 		
 		var map, identifyTarea, identifyParametros, imagen = "", capaUrl = "", contenido = "", metadata = "", fs = false, leyendaCapas = [], infoCapas = [], ocultaCapas = [], leyendaIds = [], identifyIds = [];
 	
-	dojo.ready(init);
+	dojo.ready(init);*/
 	
-    function init() {
-	  /*Fecha actualizado: 13/10/2015
-	  Cambio realizado: Actualización del archivo fuente XML*/
-	  	//var xmlUrl	=	"datosGruposTematicos.xml";
-	  	var xmlUrl	=	"datosGruposTematicosNube.xml";
-		var servicio= 	getURLParam("s");
-		alert("URL Servicio =>"+servicio);		
-		var indicadores = new dojox.data.XmlStore({url: xmlUrl, rootItem: "servicio"});		
-
-		var obtieneIndicador = function(items, request){
-                    
-        	var item = items[0];
-       
-
-			//****************************************************************************//
-			//																			  //	
-			//		Parámetros de Entrada Editables										  //
-			//																			  //	
-			//****************************************************************************//
-	
-			//ID de la capa de leyenda
-			//si hay mas de una capa para mostrar colocar valores separados por comas, por ej: [3,7]
-			leyendaIds = indicadores.getValue(item, "@legend").split(",");
-	
-			if(indicadores.getValue(item, "@image") != null && indicadores.getValue(item, "@image") != "")
-			{
-				imagen = indicadores.getValue(item, "@image");
-			}
-	
-			//ID de la capa de identificación
-			//si hay mas de una capa para mostrar colocar valores separados por comas, por ej: [3,7]
-			identifyIds = indicadores.getValue(item, "@identify").split(",");
-	
-			//Direccion URL del servicio de capas
-			capaUrl = indicadores.getValue(item, "@layer");
-			//Configuración del URL			
-			alert("Capa:"+capaUrl);
-			
-	
-			//Url del Archivo Excel u otro formato
-			if(indicadores.getValue(item, "@table") != null && indicadores.getValue(item, "@table") != "")
-			{
-				contenido = "<a href='" + indicadores.getValue(item, "@table") +  "' id='tabla' style='cursor:pointer;'>";
-				contenido += "<img src='sige-theme/images/sige/servicios/descargar.png' alt='Descargue el Excel' title='Descargue el Excel'>";
-				contenido += "</a>";
-			}
-
-			//Url de los metadatos del indicador
-			if(indicadores.getValue(item, "@metadata") != null && indicadores.getValue(item, "@metadata") != "")
-			{
-				metadata = "<a href='" + indicadores.getValue(item, "@metadata") +  "' target='_blank' class='vinculo'>Metadato de la Investigación</a><br><br>";
-			}
-	
-			if(getURLParam("fullscreen") != null && getURLParam("fullscreen") != "")
-			{
-				fs = true;
-			}
-			//Fin de Parámetros Editables
-			
-			configuraIndicador();
-			
-		}
-		
-		var request = indicadores.fetch({onComplete: obtieneIndicador, query: {"@id":servicio}, queryOptions: {ignoreCase: true} });
-		
-    }
+    /*function init() {
 	  
-	function configuraIndicador(){
+	//Se unifica en archivo externo	
+    }*/
+	  
+	/*function configuraIndicador(){
 		
 		dojo.query("#icono_fs").style("visibility", "hidden");
 		dojo.query("#gp_logo").style("visibility", "hidden");
@@ -363,225 +314,13 @@
 		
 		peticionCapa.then(peticionExitosa, peticionFallida);
 		
-	}
+	}*/
 		
-	function iniciarMapa(titulo, capas) {
-	/*Fecha actualizado: 13/10/2015
-	Cambio realizado: Adaptación librerias ArcGIS 3.14: map, ArcGISTiledMapServiceLayer y Geocoder*/	
-		tituloLeyenda = titulo;
-        var mapMain;
-        var geoCoder;
-        require([
-	        "esri/map",
-	        "esri/layers/ArcGISTiledMapServiceLayer",
-	        "esri/dijit/Geocoder",
-	        "esri/graphic",
-	        "esri/InfoTemplate",
-	        "esri/SpatialReference",
-	        "esri/geometry/Extent",
-	        "esri/layers/GraphicsLayer",
-	        "dojo/domReady!"
-        ], function (
-        	Map, ArcGISTiledMapServiceLayer, Geocoder, Graphic, InfoTemplate, SpatialReference, Extent, GraphicsLayer
-        	)
-        	{
-        		mapMain =	new Map("map",
-        		{
-        			basemap: "streets",
-        			center: [-74.095938, 4.647016],        			    			
-        			zoom:6,
-        			sliderPosition: "bottom-right"
-        		});
-
-        		//Carga de la capa en la nueva libreria
-        		var capa = new ArcGISTiledMapServiceLayer(capaUrl);
-        		//Adición de la capa al mapa
-        		mapMain.addLayer(capa);
-
-        		//Definición limites del mapa
-        		var extMapa = new esri.geometry.Extent( 
-        		{
-        			"xmin":-9495735,
-    				"ymin":-83164,
-    				"xmax":-7186725,
-    				"ymax":1406441,
-    				"spatialReference":
-    				{
-    					"wkid":102100
-    				}
-        		});
-        		//Adición de los limites al mapa
-        		mapMain.setExtent(extMapa);
-
-        		infoCapas.push({layer:capa,title:titulo});
-
-        		//Prepara la capa para la leyenda, procurando solo mostrar la capa adecuada
-				for(layer in capas)
-				{  
-					if( !buscaEnArray(leyendaIds, layer) ) {
-						ocultaCapas.push(layer);
-					}
-				}
-
-				leyendaCapas.push({layer:capa,title:titulo,hideLayers:ocultaCapas});
-
-				//Implementación del geoCoder
-				geoCoder = new Geocoder(
-				{
-					map: map,
-					autoComplete: true,
-					arcgisGeocoder:
-					{
-						placeholder: "Introducir una Ubicación"
-					}
-
-				},dojo.byId("busqueda"));
-
-				//Evento para carga de la capa del mapa
-				mapEvents = mapMain.on("load", setLoadMap);
-
-				//Método para procesar carga del mapa
-				function setLoadMap(mapEvents)
-				{
-					prepararMapa(mapEvents);
-				}
-
-				//Eventos de carga/descarga de capas del mapa
-				mapEvents = mapMain.on("update-end", setLoadEnd);
-
-				//Método para procesar el evento "update-end"
-				function setLoadEnd()
-				{
-					esri.hide(dojo.byId("carga"));
-					$("#excel").html(contenido);
-					esri.show(dojo.byId("excel"));
-				}
-
-				//Eventos de carga/descarga del mapa
-				mapEvents = mapMain.on("update-start", setLoadStart);
-
-				//Método para procesar el evento "update-start"
-				function setLoadStart()
-				{
-					esri.show(dojo.byId("carga"));
-				}
-				
-        	});
-		//var limites = new esri.geometry.Extent({"xmin":-9495735,"ymin":-83164,"xmax":-7186725,"ymax":1406441,"spatialReference":{"wkid":102100}});
-		
-		/*map = new esri.Map("map", { 
-		  extent: limites,
-		  sliderStyle: "small",
-		  sliderPosition: "bottom-right",
-		  minZoom: 6,
-		  maxZoom: 10,
-		  logo: false
-        });*/
-		
-
-
-		//Configura el buscador
-		/*var Geocoder = new esri.dijit.Geocoder({
-			autoComplete: true,
-			arcgisGeocoder:{
-				placeholder: "Introducir una Ubicación"
-			},
-		  map: map
-        },dojo.byId("busqueda"));
-		//Inicia el Buscador
-		Geocoder.startup();*/
-		
-		//Capa principal
-		/*var capa = new esri.layers.ArcGISTiledMapServiceLayer(capaUrl);
-		//map.addLayers([capa]);
-		mapMain.addLayer(capa);*/
-
-		/*infoCapas.push({layer:capa,title:titulo});
-		
-		//Prepara la capa para la leyenda, procurando solo mostrar la capa adecuada
-		for(layer in capas)
-		{  
-			if( !buscaEnArray(leyendaIds, layer) ) {
-				ocultaCapas.push(layer);
-			}
-		}
-		
-		leyendaCapas.push({layer:capa,title:titulo,hideLayers:ocultaCapas});
-		
-		dojo.connect(map,"onUpdateEnd",function(){
-		  esri.hide(dojo.byId("carga"));
-		});
-
-		dojo.connect(map,"onUpdateStart",function(){
-		  esri.show(dojo.byId("carga"));
-		});
-		
-  		//Prepara el mapa para el Identify
-		dojo.connect(map,"onLoad", prepararMapa);*/
-		
-        //Agrega la leyenda y otros elementos
-        dojo.connect(map,"onLayersAddResult",function(results){
-        	alert("Contenido =>"+contenido);
-			var peticionLeyenda = esri.request({
-			  "url": capaUrl + "/legend",
-			  "content": {
-				"f": "json"
-			  },
-			  "callbackParamName": "callback"
-			});
-			
-			peticionLeyenda.then(peticionLeyendaExitosa, peticionFallida);
-			
-
-			//Carga en el html el link del excel
-			dojo.html.set(dojo.byId("excel"), contenido);
-			
-			//Carga en el html el link de los metadatos
-			dojo.html.set(dojo.byId("metadata"), metadata);
-			
-			//Personaliza Redes Sociales
-			//Twitter
-			dojo.attr(dojo.byId("twitter"), "data-url", window.location.href);
-			dojo.attr(dojo.byId("twitter"), "data-text", "Indicadores DANE: " );
-			
-            var ruta = encodeURIComponent(window.location.href);    
-                        
-			//Facebook
-			var fb = "https://www.facebook.com/plugins/like.php?href=" + ruta + "&width=450&height=21&colorscheme=light&layout=button_count&action=like&show_faces=true&send=false&appId=383515278388083";
-			dojo.attr(dojo.byId("facebook"), "src", fb);
-			
-			//Google Plus
-                        var gp = "<iframe id='googleplus' frameborder='0' hspace='0' marginheight='0' marginwidth='0' scrolling='no' style='position: static; top: 0px; width: 90px; margin: 0px; border-style: none; left: 0px; visibility: visible; height: 20px;' tabindex='0' vspace='0' width='100%' id='I0_1380050201931' src='https://apis.google.com/u/0/_/+1/fastbutton?bsv=o&amp;usegapi=1&amp;count=true&amp;size=medium&amp;hl=en-US&amp;origin=http%3A%2F%2Fwww.dane.gov.co&amp;url=" + ruta + ";' name='I0_1380050201931' data-gapiattached='true' title='+1'></iframe>";
-                        dojo.byId("googleplus").innerHTML = gp;
-                        
-                        document.getElementById("description").setAttribute("content", "Indicadores DANE: " + titulo);
-			
-			//agrega check boxes
-                        /*
-			dojo.forEach(infoCapas,function(layer){         
-			var nombreCapa = layer.title;
-			var checkBox = new dijit.form.CheckBox({
-				name: "checkBox" + layer.layer.id,
-				value: layer.layer.id,
-				checked: layer.layer.visible,
-				onChange: function(evt) {
-				  var clayer = map.getLayer(this.value);
-				  clayer.setVisibility(!clayer.visible);
-				  this.checked = clayer.visible;
-				}
-			});
-			  
-			  //agrega el checkbox con su etiqueta
-			  dojo.place(checkBox.domNode,dojo.byId("capas"),"after");
-			  var checkLabel = dojo.create('label',{'for':checkBox.name, innerHTML:nombreCapa, style:{fontSize: "12px"} },checkBox.domNode,"last");
-				dojo.place("<br />",checkLabel,"after");
-			  });
-			  */
-        });
-		
-	}
+	/*function iniciarMapa(titulo, capas) {
+		//En archivo externo servicio.js
+	}*/
 	
-	function peticionExitosa(respuesta, io) {
+	/*function peticionExitosa(respuesta, io) {
 		var descripcion, titulo, capas = [];
 		//obtiene el Titulo y el Nombre del Servicio
 		if ( respuesta.hasOwnProperty("documentInfo") ) {
@@ -598,9 +337,9 @@
 		
 		iniciarMapa(titulo, capas);
 		
-    }
+    }*/
 	
-	function peticionLeyendaExitosa(respuesta, io) {
+	/*function peticionLeyendaExitosa(respuesta, io) {
 		//Obtiene todos los sublayers con el objeto JSON
 		
 		if ( respuesta.hasOwnProperty("layers") ) {
@@ -677,19 +416,18 @@
 			dojo.byId("leyenda").innerHTML = leyendaHtml;
 		}
 		
-    }
+    }*/
 	
-	function peticionFallida(error, io) {
+	/*function peticionFallida(error, io) {
       alert(dojo.toJson(error, true));
-    }
+    }*/
 	
 	//Reposiciona el mapa
-	function vistaInicial() {
-		var limites = new esri.geometry.Extent({"xmin":-9495735,"ymin":-83164,"xmax":-7186725,"ymax":1406441,"spatialReference":{"wkid":102100}});
-		map.setExtent(limites);
-	}
+	/*function vistaInicial() {
+		//En archivo externo servicio.js
+	}*/
 	
-	function prepararMapa(map) {
+	/*function prepararMapa(map) {
 	
 		dojo.connect(map, "onClick", ejecutarIdentifyTarea);
 		
@@ -701,9 +439,9 @@
 		identifyParametros.layerIds = identifyIds;
         identifyParametros.width  = map.width;
         identifyParametros.height = map.height;
-	}
+	}*/
 	
-	function ejecutarIdentifyTarea(evt) {
+	/*function ejecutarIdentifyTarea(evt) {
 
         identifyParametros.geometry = evt.mapPoint;
         identifyParametros.mapExtent = map.extent;
@@ -739,17 +477,17 @@
         // Muestra el array de todos los features identificados.
         map.infoWindow.setFeatures([ diferido ]);
         map.infoWindow.show(evt.mapPoint);		
-	}
+	}*/
 	
-	function buscaEnArray(arr, obj) {
+	/*function buscaEnArray(arr, obj) {
 		for(var i=0; i<arr.length; i++) {
 			if (arr[i] == obj) 
 			return true;
 		}
-	}	
+	}*/	
 
 	//Acciones Descripción
-	var togglerA; //variable extraida
+	/*var togglerA; //variable extraida
 	require(["dojo/fx/Toggler", "dojo/fx", "dojo/dom", "dojo/on", "dojo/domReady!"],
 	function(Toggler, coreFx, dom, on){
 	  togglerA = new Toggler({
@@ -767,10 +505,10 @@
 		dojo.style(dom.byId("mostrarDesc"), {display: "none"});
 		dojo.style(dom.byId("ocultarDesc"), {display: ""});
 	  });
-	});
+	});*/
 	
 	//Acciones Leyenda
-	var togglerB; //variable extraida
+	/*var togglerB; //variable extraida
 	require(["dojo/fx/Toggler", "dojo/fx", "dojo/dom", "dojo/on", "dojo/domReady!"],
 	function(Toggler, coreFx, dom, on){
 	  togglerB = new Toggler({
@@ -788,10 +526,10 @@
 		dojo.style(dom.byId("mostrarLey"), {display: "none"});
 		dojo.style(dom.byId("ocultarLey"), {display: ""});
 	  });
-	});
+	});*/
 	
 	//Funcion para que detecte el ancho de la pantalla y cambie el estilo --modo responsive
-	$(window).resize(function() {
+	/*$(window).resize(function() {
 		if ($(window).width() < 768){
 			togglerA.hide();
 			togglerB.hide();
@@ -809,17 +547,17 @@
 			$("#mostrarDesc").hide();
 			$("#ocultarDesc").show();
 		}
-    });
+    });*/
 
-	require(["dojo/dnd/Moveable", "dojo/dom", "dojo/domReady!"],
+	/*require(["dojo/dnd/Moveable", "dojo/dom", "dojo/domReady!"],
 	function(Moveable, dom){
 		var marcoMov = new Moveable(dom.byId("marco-mov"));
 		var ventanaMov = new Moveable(dom.byId("ventana-mov"));
-	});
+	});*/
 
 	//Medida Estandar 960px; height: 450px
 	
-	function getURLParam( name )
+	/*function getURLParam( name )
 	{  
 		name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");  
 		var regexS = "[\\?&]"+name+"=([^&#]*)";  
@@ -829,10 +567,10 @@
 			return "";  
 		else    
 			return results[1];
-	}
+	}*/
 	
 	//Función para pantalla completa
-	function lanzarPantallaCompleta(element) {
+	/*function lanzarPantallaCompleta(element) {
 	  if(element.requestFullScreen) {
 		element.requestFullScreen();
 	  } else if(element.mozRequestFullScreen) {
@@ -840,9 +578,9 @@
 	  } else if(element.webkitRequestFullScreen) {
 		element.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
 	  }
-	}
+	}*/
 	
-	function efectosPantallaCompleta() {
+	/*function efectosPantallaCompleta() {
 		
 		var element = document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement;		
 		
@@ -853,10 +591,10 @@
 			dojo.query("#icono_fs").style("visibility", "visible");
 		}
 		
-	}
+	}*/
 	
 	// Eventos
-	document.addEventListener("fullscreenchange", function(e) {
+	/*document.addEventListener("fullscreenchange", function(e) {
 		efectosPantallaCompleta();
 	});
 	document.addEventListener("mozfullscreenchange", function(e) {
@@ -864,7 +602,7 @@
 	});
 	document.addEventListener("webkitfullscreenchange", function(e) {
 		efectosPantallaCompleta();
-	});
+	});*/
 	
     </script> 
     <title></title> 
@@ -932,8 +670,10 @@
 					<div class="titulo" id="titulo"></div><br><br>
 					<div class="descripcion" id="descripcion"></div><br>
 					<div class="descripcion" id="metadata"></div>
-					<!--div id="capas"></div><br-->
-					<div class="descripcion"><a href="javascript:vistaInicial();" class="vinculo">Restablecer a vista predeterminada</a></div>
+					<!--div id="capas"></div><br
+					<div class="descripcion"><a href="javascript:vistaInicial();" class="vinculo">Restablecer a vista predeterminada</a></div>-->
+					<!-- Fecha actualizado: 14/10/2015-->
+					<div class="descripcion"><a onclick="" style="cursor:pointer" class="vinculo viewRestore"><u>Restablecer a vista predeterminada</u></a></div></div>
 				</div>
 			</div>
 			
