@@ -32,8 +32,8 @@ $(document).ready(function()
 		//XML del servidor Local
 		//var xmlUrl	=	"datosGruposTematicos.xml";
 		//XML del servidor Nube (Contingencia)
-		//var xmlUrl	=	"datosGruposTematicosNube.xml";		
-		var xmlUrl		=	"datosGruposTematicosMapasige.xml";
+		var xmlUrl	=	"datosGruposTematicosNube.xml";		
+		//var xmlUrl		=	"datosGruposTematicosMapasige.xml";
 		cargarOpcionesGrupo(getURLParam("c"),getURLParam("sc"),getURLParam("s"));
 		var servicio = getURLParam("s");		
 		var indicadores = new dojox.data.XmlStore({url: xmlUrl, rootItem: "servicio"});
@@ -481,4 +481,180 @@ $(document).ready(function()
       alert(dojo.toJson(error, true));
     }
 
+    function prepararMapa(map) {
+	
+		dojo.connect(map, "onClick", ejecutarIdentifyTarea);
+		
+		identifyTask = new esri.tasks.IdentifyTask(capaUrl);
+		
+		identifyParametros = new esri.tasks.IdentifyParameters();
+        identifyParametros.tolerance = 1;
+        identifyParametros.layerOption = esri.tasks.IdentifyParameters.LAYER_OPTION_TOP;
+		identifyParametros.layerIds = identifyIds;
+        identifyParametros.width  = map.width;
+        identifyParametros.height = map.height;
+	}
+
+	function ejecutarIdentifyTarea(evt) {
+
+        identifyParametros.geometry = evt.mapPoint;
+        identifyParametros.mapExtent = map.extent;
+       
+        var diferido = identifyTask.execute(identifyParametros);
+
+        diferido.addCallback(function(respuesta) {     
+          // Callback para consultar todos los features    
+          return dojo.map(respuesta, function(resultado) {
+            var feature = resultado.feature;
+			var cadenaInfo = "<b>" + resultado.layerName + "</b><br><br>";
+			// Guarda el array de todos los features identificados.
+			for(var atributo in feature.attributes) {
+				if(atributo != "OBJECTID" 
+					&& atributo != "OBJECTID_1" 
+					&& atributo != "Shape" 
+					&& atributo != "Shape_Length" 
+					&& atributo != "Shape_Area" 
+					&& atributo != "Shape_Leng" 
+					&& feature.attributes[atributo].toLowerCase() != "null") {
+					cadenaInfo += "<b>" + atributo + "</b>: " + feature.attributes[atributo] + "<br>";
+				}
+			}
+			
+			var template = new esri.InfoTemplate("", cadenaInfo);
+			feature.setInfoTemplate(template);
+            
+            return feature;
+          });
+        });
+
+      
+        // Muestra el array de todos los features identificados.
+        map.infoWindow.setFeatures([ diferido ]);
+        map.infoWindow.show(evt.mapPoint);		
+	}
+
+	function buscaEnArray(arr, obj) {
+		for(var i=0; i<arr.length; i++) {
+			if (arr[i] == obj) 
+			return true;
+		}
+	}
+
+	//Acciones Descripción
+	var togglerA; //variable extraida
+	require(["dojo/fx/Toggler", "dojo/fx", "dojo/dom", "dojo/on", "dojo/domReady!"],
+	function(Toggler, coreFx, dom, on){
+	  togglerA = new Toggler({
+		node: "marco",
+		showFunc: coreFx.wipeIn,
+		hideFunc: coreFx.wipeOut
+	  });
+	  on(dom.byId("ocultarDesc"), "click", function(e){
+		togglerA.hide();
+		dojo.style(dom.byId("mostrarDesc"), {display: ""});
+		dojo.style(dom.byId("ocultarDesc"), {display: "none"});
+	  });
+	  on(dom.byId("mostrarDesc"), "click", function(e){
+		togglerA.show();
+		dojo.style(dom.byId("mostrarDesc"), {display: "none"});
+		dojo.style(dom.byId("ocultarDesc"), {display: ""});
+	  });
+	});
+	
+	//Acciones Leyenda
+	var togglerB; //variable extraida
+	require(["dojo/fx/Toggler", "dojo/fx", "dojo/dom", "dojo/on", "dojo/domReady!"],
+	function(Toggler, coreFx, dom, on){
+	  togglerB = new Toggler({
+		node: "ventana",
+		showFunc: coreFx.wipeIn,
+		hideFunc: coreFx.wipeOut
+	  });
+	  on(dom.byId("ocultarLey"), "click", function(e){
+		togglerB.hide();
+		dojo.style(dom.byId("mostrarLey"), {display: ""});
+		dojo.style(dom.byId("ocultarLey"), {display: "none"});
+	  });
+	  on(dom.byId("mostrarLey"), "click", function(e){
+		togglerB.show();
+		dojo.style(dom.byId("mostrarLey"), {display: "none"});
+		dojo.style(dom.byId("ocultarLey"), {display: ""});
+	  });
+	});
+
+	//Funcion para que detecte el ancho de la pantalla y cambie el estilo --modo responsive
+	$(window).resize(function() {
+		if ($(window).width() < 768){
+			togglerA.hide();
+			togglerB.hide();
+			$("#mostrarLey").show();
+			$("#ocultarLey").hide();
+			$("#mostrarDesc").show();
+			$("#ocultarDesc").hide();
+		}
+		
+		else{
+			togglerA.show();
+			togglerB.show();
+			$("#mostrarLey").hide();
+			$("#ocultarLey").show();
+			$("#mostrarDesc").hide();
+			$("#ocultarDesc").show();
+		}
+    });
+
+    require(["dojo/dnd/Moveable", "dojo/dom", "dojo/domReady!"],
+	function(Moveable, dom){
+		var marcoMov = new Moveable(dom.byId("marco-mov"));
+		var ventanaMov = new Moveable(dom.byId("ventana-mov"));
+	});
+
+    //Medida Estandar 960px; height: 450px
+
+	function getURLParam( name )
+	{  
+		name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");  
+		var regexS = "[\\?&]"+name+"=([^&#]*)";  
+		var regex = new RegExp( regexS );  
+		var results = regex.exec( window.location.href );  
+		if( results == null )    
+			return "";  
+		else    
+			return results[1];
+	}
+
+	//Función para pantalla completa
+	function lanzarPantallaCompleta(element) {
+	  if(element.requestFullScreen) {
+		element.requestFullScreen();
+	  } else if(element.mozRequestFullScreen) {
+		element.mozRequestFullScreen();
+	  } else if(element.webkitRequestFullScreen) {
+		element.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
+	  }
+	}
+
+	function efectosPantallaCompleta() {
+		
+		var element = document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement;		
+		
+		if(element)
+		{	
+			dojo.query("#icono_fs").style("visibility", "hidden");
+		} else{
+			dojo.query("#icono_fs").style("visibility", "visible");
+		}
+		
+	}
+	
+	// Eventos
+	document.addEventListener("fullscreenchange", function(e) {
+		efectosPantallaCompleta();
+	});
+	document.addEventListener("mozfullscreenchange", function(e) {
+		efectosPantallaCompleta();
+	});
+	document.addEventListener("webkitfullscreenchange", function(e) {
+		efectosPantallaCompleta();
+	});
 });

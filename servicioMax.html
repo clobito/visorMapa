@@ -360,86 +360,11 @@
     }*/
 	
 	/*function peticionLeyendaExitosa(respuesta, io) {
-		//Obtiene todos los sublayers con el objeto JSON
-		
-		if ( respuesta.hasOwnProperty("layers") ) {
-
-			var leyendaHtml = '<div style="display: block; " class="esriLegendService">';
-			leyendaHtml += '<table width="95%">';
-			leyendaHtml += '<tbody>';
-			leyendaHtml += '<tr>';
-			leyendaHtml += '<td align="">';
-			leyendaHtml += '<span class="esriLegendServiceLabel">' + tituloLeyenda + '</span>';
-			leyendaHtml += '</td>';
-			leyendaHtml += '</tr>';
-			leyendaHtml += '</tbody>';
-			leyendaHtml += '</table>';
-
-			var layers = respuesta.layers;
-
-			var j = 0;
-			for (var i = 0; i < layers.length; i++) {
-				if( buscaEnArray(leyendaIds, layers[i].layerId) ) {
-					
-					leyendaHtml += '<div style="display: block; " class="">';
-					leyendaHtml += '<table width="95%" class="esriLegendLayerLabel">';
-					leyendaHtml += '<tbody>';
-					leyendaHtml += '<tr>';
-					leyendaHtml += '<td align="">' + layers[i].layerName + '</td>';
-					leyendaHtml += '</tr>';
-					leyendaHtml += '</tbody>';
-					leyendaHtml += '</table>';
-					
-					leyendaHtml += '<table cellpadding="0" cellspacing="0" width="95%" class="esriLegendLayer">';
-					leyendaHtml += '<tbody>';
-					
-					if( imagen == "" ){
-					
-						var leyendas = layers[i].legend;
-						for(var j = 0; j < leyendas.length; j++) {
-							leyendaHtml += '<tr>';
-							leyendaHtml += '<td width="35">';
-							leyendaHtml += '<img src="data:' + leyendas[j].contentType + ';base64,' + leyendas[j].imageData + '" border="0" style="opacity:1">';
-							leyendaHtml += '</td>';
-							leyendaHtml += '<td>';
-							leyendaHtml += '<table width="95%" dir="ltr">';
-							leyendaHtml += '<tbody>';
-							leyendaHtml += '<tr>';
-							leyendaHtml += '<td align="">' + leyendas[j].label + '</td>';
-							leyendaHtml += '</tr>';
-							leyendaHtml += '</tbody>';
-							leyendaHtml += '</table>';
-							leyendaHtml += '</td>';
-							leyendaHtml += '</tr>';
-						}
-					
-					} else {
-
-						leyendaHtml += '<tr>';
-						leyendaHtml += '<td>';
-						leyendaHtml += '<img src="' + imagen + '">';
-						leyendaHtml += '</td>';
-						leyendaHtml += '</tr>';
-					
-					}
-			
-					leyendaHtml += '</tbody>';
-					leyendaHtml += '</table>';
-					leyendaHtml += '</div>';
-					
-				}
-
-			}
-				
-			leyendaHtml += '</div>';
-			
-			dojo.byId("leyenda").innerHTML = leyendaHtml;
-		}
-		
+		//En archivo externo servicioMax.js
     }*/
 	
 	/*function peticionFallida(error, io) {
-      alert(dojo.toJson(error, true));
+      //En archivo externo servicioMax.js
     }*/
 	
 	//Reposiciona el mapa
@@ -447,173 +372,47 @@
 		//Se reemplaza implementación por declaración de evento en el método setLoadEnd()
 	}*/
 	
-	function prepararMapa(map) {
+	/*function prepararMapa(map) {	
+		//En archivo externo servicioMax.js
+	}*/
 	
-		dojo.connect(map, "onClick", ejecutarIdentifyTarea);
+	/*function ejecutarIdentifyTarea(evt) {
+        //En archivo externo servicioMax.js	
+	}*/
+	
+	/*function buscaEnArray(arr, obj) {
+		//En archivo externo servicioMax.js
+	}*/	
+
 		
-		identifyTask = new esri.tasks.IdentifyTask(capaUrl);
-		
-		identifyParametros = new esri.tasks.IdentifyParameters();
-        identifyParametros.tolerance = 1;
-        identifyParametros.layerOption = esri.tasks.IdentifyParameters.LAYER_OPTION_TOP;
-		identifyParametros.layerIds = identifyIds;
-        identifyParametros.width  = map.width;
-        identifyParametros.height = map.height;
-	}
-	
-	function ejecutarIdentifyTarea(evt) {
-
-        identifyParametros.geometry = evt.mapPoint;
-        identifyParametros.mapExtent = map.extent;
-       
-        var diferido = identifyTask.execute(identifyParametros);
-
-        diferido.addCallback(function(respuesta) {     
-          // Callback para consultar todos los features    
-          return dojo.map(respuesta, function(resultado) {
-            var feature = resultado.feature;
-			var cadenaInfo = "<b>" + resultado.layerName + "</b><br><br>";
-			// Guarda el array de todos los features identificados.
-			for(var atributo in feature.attributes) {
-				if(atributo != "OBJECTID" 
-					&& atributo != "OBJECTID_1" 
-					&& atributo != "Shape" 
-					&& atributo != "Shape_Length" 
-					&& atributo != "Shape_Area" 
-					&& atributo != "Shape_Leng" 
-					&& feature.attributes[atributo].toLowerCase() != "null") {
-					cadenaInfo += "<b>" + atributo + "</b>: " + feature.attributes[atributo] + "<br>";
-				}
-			}
-			
-			var template = new esri.InfoTemplate("", cadenaInfo);
-			feature.setInfoTemplate(template);
-            
-            return feature;
-          });
-        });
-
-      
-        // Muestra el array de todos los features identificados.
-        map.infoWindow.setFeatures([ diferido ]);
-        map.infoWindow.show(evt.mapPoint);		
-	}
-	
-	function buscaEnArray(arr, obj) {
-		for(var i=0; i<arr.length; i++) {
-			if (arr[i] == obj) 
-			return true;
-		}
-	}	
-
-	//Acciones Descripción
-	var togglerA; //variable extraida
-	require(["dojo/fx/Toggler", "dojo/fx", "dojo/dom", "dojo/on", "dojo/domReady!"],
-	function(Toggler, coreFx, dom, on){
-	  togglerA = new Toggler({
-		node: "marco",
-		showFunc: coreFx.wipeIn,
-		hideFunc: coreFx.wipeOut
-	  });
-	  on(dom.byId("ocultarDesc"), "click", function(e){
-		togglerA.hide();
-		dojo.style(dom.byId("mostrarDesc"), {display: ""});
-		dojo.style(dom.byId("ocultarDesc"), {display: "none"});
-	  });
-	  on(dom.byId("mostrarDesc"), "click", function(e){
-		togglerA.show();
-		dojo.style(dom.byId("mostrarDesc"), {display: "none"});
-		dojo.style(dom.byId("ocultarDesc"), {display: ""});
-	  });
-	});
-	
-	//Acciones Leyenda
-	var togglerB; //variable extraida
-	require(["dojo/fx/Toggler", "dojo/fx", "dojo/dom", "dojo/on", "dojo/domReady!"],
-	function(Toggler, coreFx, dom, on){
-	  togglerB = new Toggler({
-		node: "ventana",
-		showFunc: coreFx.wipeIn,
-		hideFunc: coreFx.wipeOut
-	  });
-	  on(dom.byId("ocultarLey"), "click", function(e){
-		togglerB.hide();
-		dojo.style(dom.byId("mostrarLey"), {display: ""});
-		dojo.style(dom.byId("ocultarLey"), {display: "none"});
-	  });
-	  on(dom.byId("mostrarLey"), "click", function(e){
-		togglerB.show();
-		dojo.style(dom.byId("mostrarLey"), {display: "none"});
-		dojo.style(dom.byId("ocultarLey"), {display: ""});
-	  });
-	});
-	
-	//Funcion para que detecte el ancho de la pantalla y cambie el estilo --modo responsive
+	/*//Funcion para que detecte el ancho de la pantalla y cambie el estilo --modo responsive
 	$(window).resize(function() {
-		if ($(window).width() < 768){
-			togglerA.hide();
-			togglerB.hide();
-			$("#mostrarLey").show();
-			$("#ocultarLey").hide();
-			$("#mostrarDesc").show();
-			$("#ocultarDesc").hide();
-		}
-		
-		else{
-			togglerA.show();
-			togglerB.show();
-			$("#mostrarLey").hide();
-			$("#ocultarLey").show();
-			$("#mostrarDesc").hide();
-			$("#ocultarDesc").show();
-		}
-    });
+		//En archivo externo servicioMax.js
+    });*/
 
-	require(["dojo/dnd/Moveable", "dojo/dom", "dojo/domReady!"],
+	/*require(["dojo/dnd/Moveable", "dojo/dom", "dojo/domReady!"],
 	function(Moveable, dom){
-		var marcoMov = new Moveable(dom.byId("marco-mov"));
-		var ventanaMov = new Moveable(dom.byId("ventana-mov"));
-	});
+		//En archivo externo servicioMax.js
+	});*/
 
 	//Medida Estandar 960px; height: 450px
 	
-	function getURLParam( name )
+	/*function getURLParam( name )
 	{  
-		name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");  
-		var regexS = "[\\?&]"+name+"=([^&#]*)";  
-		var regex = new RegExp( regexS );  
-		var results = regex.exec( window.location.href );  
-		if( results == null )    
-			return "";  
-		else    
-			return results[1];
-	}
+		//En archivo externo servicioMax.js
+	}*/
 	
 	//Función para pantalla completa
-	function lanzarPantallaCompleta(element) {
-	  if(element.requestFullScreen) {
-		element.requestFullScreen();
-	  } else if(element.mozRequestFullScreen) {
-		element.mozRequestFullScreen();
-	  } else if(element.webkitRequestFullScreen) {
-		element.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
-	  }
-	}
+	/*function lanzarPantallaCompleta(element) {
+	  //En archivo externo servicioMax.js
+	}*/
 	
-	function efectosPantallaCompleta() {
+	/*function efectosPantallaCompleta() {		
+		//En archivo externo servicioMax.js
 		
-		var element = document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement;		
-		
-		if(element)
-		{	
-			dojo.query("#icono_fs").style("visibility", "hidden");
-		} else{
-			dojo.query("#icono_fs").style("visibility", "visible");
-		}
-		
-	}
+	}*/
 	
-	// Eventos
+	/*// Eventos
 	document.addEventListener("fullscreenchange", function(e) {
 		efectosPantallaCompleta();
 	});
@@ -622,7 +421,7 @@
 	});
 	document.addEventListener("webkitfullscreenchange", function(e) {
 		efectosPantallaCompleta();
-	});
+	});*/
     </script> 
     <title></title> 
   </head> 

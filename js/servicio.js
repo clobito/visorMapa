@@ -36,8 +36,8 @@ $(document).ready(function()
 	  Cambio realizado: Cargue del archivo fuente XML del sitio geoportal.
 	  */
 	  	//var xmlUrl	=	"datosGruposTematicos.xml";
-	  	//var xmlUrl	=	"datosGruposTematicosNube.xml";
-	  	var xmlUrl		=	"datosGruposTematicosMapasige.xml";
+	  	var xmlUrl	=	"datosGruposTematicosNube.xml";
+	  	//var xmlUrl		=	"datosGruposTematicosMapasige.xml";
 		var servicio 	= 	getURLParam("s");
 		alert("URL Servicio =>"+servicio);		
 		var indicadores = new dojox.data.XmlStore({url: xmlUrl, rootItem: "servicio"});		
@@ -101,18 +101,21 @@ $(document).ready(function()
     }
     function configuraIndicador(){
 		/*Fecha actualizado: 15/10/2015.
-		Cambio realizado: Ocultar botón Maximizar Indicador*/
+		Cambio realizado: Ocultar botón Maximizar Indicador
+		Fecha actualizado: 16/10/2015
+		Cambio realizado: Uso de Jquery en la Libreria ArcGIS 3.14*/
 		$('#icono_amp').attr('style','visibility:hidden');
 		//dojo.query("#icono_amp").style("visibility", "hidden");
-		dojo.query("#gp_logo").style("visibility", "hidden");
-		
+		//dojo.query("#gp_logo").style("visibility", "hidden");
+		$('#gp_logo').attr('style','visibility:hidden');
 		//Cuando el navegador no es IE, se muestra el botón de full screen
 		if(!dojo.isIE && fs){
-			dojo.query("#icono_amp").style("visibility", "visible");
-		}
-		
+			//dojo.query("#icono_amp").style("visibility", "visible");
+			$('#icono_amp').attr('visibility:visible');
+		}		
 		if(fs){
-			dojo.query("#gp_logo").style("visibility", "visible");
+			//dojo.query("#gp_logo").style("visibility", "visible");
+			$('#gp_logo').attr('visibility:visible');
 		}
 		
 		var peticionCapa = esri.request({
@@ -131,7 +134,9 @@ $(document).ready(function()
 	/*Fecha actualizado: 13/10/2015
 	Cambio realizado: Adaptación librerias ArcGIS 3.14: map, ArcGISTiledMapServiceLayer y Geocoder
 	Fecha actualizado: 14/10/2015
-	Cambio realizado: Desactivar definición del mapa. Pasa a ser definición global*/	
+	Cambio realizado: Desactivar definición del mapa. Pasa a ser definición global
+	Fecha actualizado: 16/10/2015
+	Cambio realizado: Desactivación de cargue de redes sociales en vista normal*/	
 		tituloLeyenda = titulo;
         //var mapMain;
         var geoCoder;
@@ -321,8 +326,8 @@ $(document).ready(function()
 
 		
         //Agrega la leyenda y otros elementos
-        dojo.connect(map,"onLayersAddResult",function(results){        	
-			/*var peticionLeyenda = esri.request({
+        /*dojo.connect(map,"onLayersAddResult",function(results){        	
+			var peticionLeyenda = esri.request({
 			  "url": capaUrl + "/legend",
 			  "content": {
 				"f": "json"
@@ -339,10 +344,10 @@ $(document).ready(function()
 			//Carga en el html el link de los metadatos
 			dojo.html.set(dojo.byId("metadata"), metadata);*/
 			
-			//Personaliza Redes Sociales
+			//Personaliza Redes Sociales - No aplica en vista normnal
 			//Twitter
 			
-			dojo.attr(dojo.byId("twitter"), "data-url", window.location.href);
+			/*dojo.attr(dojo.byId("twitter"), "data-url", window.location.href);
 			dojo.attr(dojo.byId("twitter"), "data-text", "Indicadores DANE: " );
 			
             var ruta = encodeURIComponent(window.location.href);    
@@ -355,7 +360,7 @@ $(document).ready(function()
             var gp = "<iframe id='googleplus' frameborder='0' hspace='0' marginheight='0' marginwidth='0' scrolling='no' style='position: static; top: 0px; width: 90px; margin: 0px; border-style: none; left: 0px; visibility: visible; height: 20px;' tabindex='0' vspace='0' width='100%' id='I0_1380050201931' src='https://apis.google.com/u/0/_/+1/fastbutton?bsv=o&amp;usegapi=1&amp;count=true&amp;size=medium&amp;hl=en-US&amp;origin=http%3A%2F%2Fwww.dane.gov.co&amp;url=" + ruta + ";' name='I0_1380050201931' data-gapiattached='true' title='+1'></iframe>";
             dojo.byId("googleplus").innerHTML = gp;
             
-            document.getElementById("description").setAttribute("content", "Indicadores DANE: " + titulo);
+            document.getElementById("description").setAttribute("content", "Indicadores DANE: " + titulo);*/
 			
 			//agrega check boxes
                         /*
@@ -377,13 +382,14 @@ $(document).ready(function()
 			  var checkLabel = dojo.create('label',{'for':checkBox.name, innerHTML:nombreCapa, style:{fontSize: "12px"} },checkBox.domNode,"last");
 				dojo.place("<br />",checkLabel,"after");
 			  });
-			  */
-        });
+			  
+        });*/
 		
 	}
 
 	function peticionExitosa(respuesta, io) {
 		var descripcion, titulo, capas = [];
+		
 		//obtiene el Titulo y el Nombre del Servicio
 		if ( respuesta.hasOwnProperty("documentInfo") ) {
 			descripcion = respuesta.documentInfo.Comments;
@@ -392,11 +398,12 @@ $(document).ready(function()
 			document.title = titulo;			
 			dojo.byId("descripcion").innerHTML = descripcion;	
 		}
+		
 		//Obtiene todos los sublayers con el objeto JSON
 		if ( respuesta.hasOwnProperty("layers") ) {
 			 capas = respuesta.layers;
 		}
-		
+		//Crea el mapa
 		iniciarMapa(titulo, capas);
 		
     }
@@ -538,8 +545,6 @@ $(document).ready(function()
             return feature;
           });
         });
-
-      
         // Muestra el array de todos los features identificados.
         map.infoWindow.setFeatures([ diferido ]);
         map.infoWindow.show(evt.mapPoint);		

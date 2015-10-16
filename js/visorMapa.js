@@ -133,6 +133,7 @@ function setSubCat(categ)
 	});
 				
 }
+
 /*	Fecha actualizado: 15/10/2015
 Cambio realizado: Carga del archivo XML del portal Dane.*/
 //Declaraciones globales
@@ -140,9 +141,9 @@ var todosGrupos = true;
 
 //var xmlUrl=	"datosGruposTematicos.xml";
 //XML de la nube - Contingencia
-//var xmlUrl	=	"datosGruposTematicosNube.xml";
+var xmlUrl	=	"datosGruposTematicosNube.xml";
 //XML del portal Dane
-var xmlUrl	=	"datosGruposTematicosMapasige.xml";
+//var xmlUrl	=	"datosGruposTematicosMapasige.xml";
 var noGrupo = getURLParam("indicador");
 
 if(noGrupo != "" && !isNaN(noGrupo)){
