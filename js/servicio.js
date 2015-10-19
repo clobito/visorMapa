@@ -27,6 +27,13 @@ $(document).ready(function()
 
 	var map, identifyTarea, identifyParametros, imagen = "", capaUrl = "", contenido = "", metadata = "", fs = false, leyendaCapas = [], infoCapas = [], ocultaCapas = [], leyendaIds = [], identifyIds = [];
 
+	/*Fecha actualizado: 16/10/2015
+	Cambio realizado: Establecer variable para obtener el XML Source como global. Se desactiva del método init()
+	Fecha actualizado: 19/10/2015
+	Cambio realizado: Establecer fuente XML desde el servidor DANE
+	*/
+	//var xmlUrl	=	"datosGruposTematicosNube.xml";
+	var xmlUrl		=	"datosGruposTematicosMapasige.xml";
 	dojo.ready(init);
 	
 	function init() {
@@ -34,9 +41,12 @@ $(document).ready(function()
 	  Cambio realizado: Actualización del archivo fuente XML por contingencia
 	  Fecha actualizado: 15/10/2015
 	  Cambio realizado: Cargue del archivo fuente XML del sitio geoportal.
+	  Fecha actualizado: 16/10/2015
+	  Cambio realizado: Procesamiento del atributo identify. Cuando es único, se trae en un arrreglo en la posición 0; de lo contrario, se procesan en un arreglo quedando en varias posiciones.
+	  Observaciones: Fuente: http://www.w3schools.com/jsref/jsref_split.asp 
 	  */
 	  	//var xmlUrl	=	"datosGruposTematicos.xml";
-	  	var xmlUrl	=	"datosGruposTematicosNube.xml";
+	  	//var xmlUrl	=	"datosGruposTematicosNube.xml";
 	  	//var xmlUrl		=	"datosGruposTematicosMapasige.xml";
 		var servicio 	= 	getURLParam("s");
 		alert("URL Servicio =>"+servicio);		
@@ -54,7 +64,7 @@ $(document).ready(function()
 			//****************************************************************************//
 	
 			//ID de la capa de leyenda
-			//si hay mas de una capa para mostrar colocar valores separados por comas, por ej: [3,7]
+			//si hay mas de una capa para mostrar colocar valores separados por comas, por ej: [3,7]			
 			leyendaIds = indicadores.getValue(item, "@legend").split(",");
 	
 			if(indicadores.getValue(item, "@image") != null && indicadores.getValue(item, "@image") != "")
@@ -63,14 +73,22 @@ $(document).ready(function()
 			}
 	
 			//ID de la capa de identificación
+			//Averiguar si tiene 1 o más identify asociados.
+			//Si hay un solo Identify se toma el mismo a un array			
+			if (indicadores.getValue(item, "@identify").indexOf(',') == -1)
+			{				
+				identifyIds = indicadores.getValue(item, "@identify").split();
+			}
 			//si hay mas de una capa para mostrar colocar valores separados por comas, por ej: [3,7]
-			identifyIds = indicadores.getValue(item, "@identify").split(",");
-	
+			else
+			{			
+				identifyIds = indicadores.getValue(item, "@identify").split(",");
+			}			
+			
 			//Direccion URL del servicio de capas
 			capaUrl = indicadores.getValue(item, "@layer");
 			//Configuración del URL			
 			alert("Capa:"+capaUrl);
-			
 	
 			//Url del Archivo Excel u otro formato
 			if(indicadores.getValue(item, "@table") != null && indicadores.getValue(item, "@table") != "")
@@ -136,7 +154,12 @@ $(document).ready(function()
 	Fecha actualizado: 14/10/2015
 	Cambio realizado: Desactivar definición del mapa. Pasa a ser definición global
 	Fecha actualizado: 16/10/2015
-	Cambio realizado: Desactivación de cargue de redes sociales en vista normal*/	
+	Cambio realizado: Desactivación de cargue de redes sociales en vista normal
+	Fecha actualizado: 16/10/2015
+	Cambio realizado: Inclusión de los módulos query, QueryTask
+	Fecha actualizado: 19/10/2015
+	Cambio realizado: Inclusión de los módulos symbols/SimpleFillSymbol, esri/Color y symbols/SimpleLineSymbol
+	*/	
 		tituloLeyenda = titulo;
         //var mapMain;
         var geoCoder;
@@ -149,9 +172,16 @@ $(document).ready(function()
 	        "esri/SpatialReference",
 	        "esri/geometry/Extent",
 	        "esri/layers/GraphicsLayer",
+	        "esri/symbols/SimpleFillSymbol",
+	        "esri/symbols/SimpleLineSymbol",
+	        "esri/tasks/query",
+        	"esri/tasks/QueryTask",
+        	"esri/Color",
 	        "dojo/domReady!"
         ], function (
-        	Map, ArcGISTiledMapServiceLayer, Geocoder, Graphic, InfoTemplate, SpatialReference, Extent, GraphicsLayer
+        	Map, ArcGISTiledMapServiceLayer, Geocoder, Graphic, InfoTemplate, 
+        	SpatialReference, Extent, GraphicsLayer, SimpleFillSymbol, SimpleLineSymbol, 
+        	Query, QueryTask, Color
         	)
         	{
         		mapMain =	new Map("map",
@@ -213,11 +243,12 @@ $(document).ready(function()
 				function setLoadMap(mapEvents)
 				{
 					/*Fecha actualizado: 15/10/2015
-					Cambio realizado: Ocultar iconos de Maximizar indicador y descarga de excel cuando se obtiene el mapa*/
+					Cambio realizado: Ocultar iconos de Maximizar indicador y descarga de excel cuando se obtiene el mapa
+					*/
 					/*esri.hide($('#icono_amp'));
 					esri.hide($('#excel'));*/
 					$('#icono_amp').attr('style','visibility:visible');
-					prepararMapa(mapEvents);
+					prepararMapa(mapEvents);					
 				}
 
 				//Eventos de carga/descarga de capas del mapa
@@ -227,9 +258,18 @@ $(document).ready(function()
 				function setLoadEnd()
 				{
 					/*Fecha actualizado: 14/10/2015
-					Cambio realizado: Cargue del vinculo para descargar información en hoja de calculo*/
+					Cambio realizado: Cargue del vinculo para descargar información en hoja de calculo
+					Fecha actualizado: 16/10/2015
+					Cambio realizado: Implementar visualización de información empleando el componente QueryTask()
+					Fecha actualizado: 19/10/2015
+					Cambio realizado: Cargar los vinculos de redes sociales
+					Fecha actualizado: 19/10/2015
+					Cambio realizado: Implementar el cargue de la información asociando	los campos del Query en la sección "Fields"
+					*/
+
 					//esri.hide(dojo.byId("carga"));
 					$("#excel").html(contenido);
+					iniciarRedesSociales(titulo, capas);
 					
 					//esri.show(dojo.byId("excel"));
 					/*esri.show($("#excel"));
@@ -237,11 +277,195 @@ $(document).ready(function()
 					$(".viewRestore").click(function()
 					{
 						/*Fecha actualizado: 14/10/2015
-						Cambio realizado: Habilitar vinculo "Reestablecer a vista predeterminada".*/
+						Cambio realizado: Habilitar vinculo "Reestablecer a vista predeterminada".						
+						*/
 
 						var limites = new esri.geometry.Extent({"xmin":-9495735,"ymin":-83164,"xmax":-7186725,"ymax":1406441,"spatialReference":{"wkid":102100}});
 						mapMain.setExtent(limites);
 					});
+					
+					/*Creación del query para InfoWindow*/
+					//Paso 1.Obtener el identify del xml, basado en la información del atributo layer.
+					//En var identifyIds => array
+
+					//alert("Url para identify=>"+capaUrl+",numero identify:"+identifyIds.length);
+					//Evaluamos si se envía 1 identify
+					if (identifyIds.length == 1)
+					{
+						//Paso 2.Armamos la URL junto con el identify
+						var capaUrlQuery	=	capaUrl+"/"+identifyIds[0];	
+						//var capaUrlQuery	=	"http://sampleserver1.arcgisonline.com/ArcGIS/rest/services/Demographics/ESRI_Census_USA/MapServer/3";
+						//var flag 			=	0;
+						var flag 			=	1;
+						//Paso 3. Implementación del Parser para traer el JSON en el campo 'fields' a un arreglo
+						var items 			=	[];						
+						
+						//Petición sincrónica
+						/*$.ajaxSetup({
+						    async: false
+						});
+						items 				=	QueryArray(capaUrlQuery,flag);
+						alert("Arreglo Cantidad =>"+items.length);
+						for (cont=0; cont < items.length; ++cont)
+						{
+							alert("Campos Query =>"+items[cont]);
+						}
+						
+						//Petición asincrónica
+						$.ajaxSetup({
+						    async: true
+						});*/							
+						
+						/*//Paso 3.Invocamos el servicio de Query Task
+						var queryTask 		=	new QueryTask(capaUrlQuery); 
+						
+						//Paso 4.Construcción del filtro para consulta
+						var query 			=	new Query();
+						query.returnGeometry=	true;
+						query.outFields		=	["*"];
+						query.outSpatialReference=
+			        	{
+			        		"wkid": 102100
+			        	};
+						query.where			=	items[2]+" "+"LIKE"+" "+"'c%'";
+						
+						//Paso 5.Visualización de campos, junto con sus labels en InfoWindow							
+						//var infoTemplate 	=	new InfoTemplate("Attributes", "${*}");
+						var infoTemplate 	=	new InfoTemplate();
+						//Definición titulo, de acuerdo al paso 3
+						var title 			=	"${"+items[2]+"}";
+						var content 		=	"";
+						//Armado del content según arreglo creado en paso 3
+						for (cont = 0; cont < items.length; cont++)	
+						{
+							content += "<b>"+items[cont]+":</b>"+"${"+items[cont]+"}<br>";								
+						}
+						//Renderizar título y contenido al InfoWindow 
+						infoTemplate.setTitle(title);
+						infoTemplate.setContent(content);
+
+						//Declaramos tamaño del infoWindow
+						mapMain.infoWindow.resize(245, 125);*/
+
+						//Del ejemplo
+						//Paso 3.Invocamos el servicio de Query Task
+						var queryTask 		=	new QueryTask(capaUrlQuery); 
+						//Paso 4.Construcción del filtro para consulta
+						var query 			=	new Query();
+						query.returnGeometry	=	true;
+	        			/*query.outFields			=	[
+	        				"NAME",
+	        				"STATE_NAME", 
+	        				"POP2000", 
+	        				"POP2007", 
+	        				"POP00_SQMI", 
+	        				"POP07_SQMI"
+	        				//"*"
+	        			];*/
+	        			query.outFields			=	[
+	        				"CODIGO",
+	        				"FIRST_NOM",
+	        				"DensidadPoblacionCabecera_Ha"
+	        			];
+	        			query.outSpatialReference=
+			        	{
+			        		"wkid": 102100
+			        		//"wkid": 4326
+			        	};
+	        			query.where = //"";
+		        		/*"STATE_NAME = 'South Carolina'";
+		        		"STATE_NAME LIKE '%N%' OR STATE_NAME LIKE '%U%";
+		        		"NAME LIKE 'A%' OR NAME LIKE 'B%'";
+		        		"STATE_NAME LIKE 'M%' AND NAME LIKE 'H%' ";*/
+		        		"CODIGO > 0";
+
+		        		//Visualización de campos, junto con sus labels en InfoWindow
+			        	var infoTemplate=	new InfoTemplate();
+			        	var title 		=	"${CODIGO}-${FIRST_NOM}";
+			        	//var title 		=	"${NAME}-${STATE_NAME}";
+			        	//var title 	=	"Ensayo";
+			            /*var content = "<b>2000 Population: </b>${POP2000}<br/>" +
+			                          "<b>2000 Population per Sq. Mi.: </b>${POP00_SQMI}<br/>" +
+			                          "<b>2007 Population: </b>${POP2007}<br/>" +
+			                          "<b>2007 Population per Sq. Mi.: </b>${POP07_SQMI}";*/
+		              	var content = "<b>Num.Personas: </b>${DensidadPoblacionCabecera_Ha}<br/>" + "";
+			            //Renderizar titulo y contenidos del InfoWindow
+			            //infoTemplate.setTitle("${NAME}");
+			            infoTemplate.setTitle(title);
+			            infoTemplate.setContent(content);
+						
+						mapMain.infoWindow.resize(245, 125);
+						
+						//Visualización al completar la creación del query
+						queryTask.on("complete", function (event)
+						{
+							alert(content);
+							//return false;
+							mapMain.graphics.clear();								
+							//Resaltado de simbolos
+							var highlightSymbol = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
+								new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
+								new Color([255, 0, 0]), 3),
+								new Color([125, 125, 125, 0.35]));
+							//Simbolos
+							var symbol = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
+								 new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
+								 new Color([255, 255, 255, 0.35]), 1),
+								 new Color([125, 125, 125, 0.35]));
+						
+							var features = event.featureSet.features;
+			              	var countiesGraphicsLayer = new GraphicsLayer();
+			              	//QueryTask returns a featureSet.
+			              	//Loop through features in the featureSet and add them to the map.
+			              	var featureCount = features.length;				              	
+			              	for (var cont=0; cont < featureCount; cont++)
+			              	{
+			              		//Get the current feature from the featureSet.
+			              		//Feature is a graphic
+			              		var graphic = features[cont];
+			              		graphic.setSymbol(symbol);
+			              		graphic.setInfoTemplate(infoTemplate);
+			              		countiesGraphicsLayer.add(graphic);
+			              	}
+			              	//Desplegar en el mapa
+			              	mapMain.addLayer(countiesGraphicsLayer);
+			              	//Habilitar mouse con el fin de obtener la información cuando un evento se dispara
+			              	mapMain.graphics.enableMouseEvents();				              	
+			              	//Evento "Mouse-Over": Desplegar cuadro informativo
+			              	countiesGraphicsLayer.on("mouse-over",function (event)
+			              	{
+			              		//use the maps graphics layer as the highlight layer
+			              	 	/*map.graphics.clear();
+			              	 	var graphic 		=	event.graphic;
+			              	 	//Establecer contenido
+			              	 	map.infoWindow.setContent(graphic.getContent());
+			              	 	//Establecer información en la ventana correspondiente a cada punto en el mapa
+			              	 	map.infoWindow.setTitle(graphic.getTitle());
+			              	 	//Resaltado del segmento al colocar el mouse sobre el mismo
+			              	 	var highlightGraphic=	new Graphic(graphic.geometry, highlightSymbol);
+			              	 	map.graphics.add(highlightGraphic);
+			              	 	map.infoWindow.show(event.screenPoint, map.getInfoWindowAnchor(event.screenPoint));*/
+			              	});
+			              	//listen for when map.graphics mouse-out event is fired
+			              	 //and then clear the highlight graphic
+			              	 //and hide the info window
+			              	 //Evento "mouse-out"	
+			              	 mapMain.graphics.on("mouse-out",function()
+			              	 {
+			              	 	/*map.graphics.clear();
+              	 				map.infoWindow.hide();*/
+			              	 });			              	 
+						});
+						queryTask.execute(query);						
+					}
+					//Cuando son más de 1, los recorremos con una iteracción	
+					else
+					{
+
+					}
+					
+					//Finalizamos la ejecución del query
+					return false;
 				}
 
 				//Eventos de carga/descarga del mapa
@@ -387,6 +611,50 @@ $(document).ready(function()
 		
 	}
 
+	function iniciarRedesSociales(titulo, capas) 
+	{
+		/*Fecha actualizado: 14/10/2015
+		Cambio realizado: Implementar cargue de redes sociales.
+		Fecha actualizado: 15/10/2015
+		Cambio realizado: Actualización de cargue de controles, empleando Jquery
+		Observaciones: Se toma fragmento del método iniciarMapa()*/
+		tituloLeyenda = titulo;
+        
+		//Carga en el html el link del excel
+		//dojo.html.set(dojo.byId("excelMax"), contenido);
+		//$('#excelMax').html(contenido);
+		//Carga en el html el link de los metadatos
+		//dojo.html.set(dojo.byId("metadata"), metadata);
+		$('#metadata').html(metadata);
+		
+		//Personaliza Redes Sociales
+		//Twitter
+		/*dojo.attr(dojo.byId("twitter"), "data-url", window.location.href);
+		dojo.attr(dojo.byId("twitter"), "data-text", "Indicadores DANE: " );*/
+
+		with ($('#twitter'))
+		{
+			attr("data-url", window.location.href);
+			attr("data-text", "Indicadores DANE: ");
+		}
+		
+        var ruta = encodeURIComponent(window.location.href);    
+                    
+		//Facebook
+		var fb = "https://www.facebook.com/plugins/like.php?href=" + ruta + "&width=450&height=21&colorscheme=light&layout=button_count&action=like&show_faces=true&send=false&appId=383515278388083";			
+		//dojo.attr(dojo.byId("facebook"), "src", fb);
+
+		$('#facebook').attr("src",fb);
+		
+		//Google Plus
+        var gp = "<iframe id='googleplus' frameborder='0' hspace='0' marginheight='0' marginwidth='0' scrolling='no' style='position: static; top: 0px; width: 90px; margin: 0px; border-style: none; left: 0px; visibility: visible; height: 20px;' tabindex='0' vspace='0' width='100%' id='I0_1380050201931' src='https://apis.google.com/u/0/_/+1/fastbutton?bsv=o&amp;usegapi=1&amp;count=true&amp;size=medium&amp;hl=en-US&amp;origin=http%3A%2F%2Fwww.dane.gov.co&amp;url=" + ruta + ";' name='I0_1380050201931' data-gapiattached='true' title='+1'></iframe>";
+        //dojo.byId("googleplus").innerHTML = gp;
+        $('#googleplus').html(gp);
+            
+        //document.getElementById("description").setAttribute("content", "Indicadores DANE: " + titulo);
+        $('#description').attr("content","Indicadores DANE: " + titulo);
+
+	}
 	function peticionExitosa(respuesta, io) {
 		var descripcion, titulo, capas = [];
 		
@@ -674,4 +942,45 @@ $(document).ready(function()
 	document.addEventListener("webkitfullscreenchange", function(e) {
 		efectosPantallaCompleta();
 	});
+
+	function QueryArray(capaUrlQuery,flag)
+	{
+		//Fecha creado: 19/10/2015
+		//Parametros: capaurlQuery => String; flag => Integer
+		var items		=	[];	
+		//var capaUrlQueryJson	=	capaUrlQuery+"?f=json";
+		if (flag == 0)
+		{
+			var capaUrlQueryJson	=	capaUrlQuery;	
+		}
+		if (flag == 1)
+		{
+			var capaUrlQueryJson	=	capaUrlQuery+"?f=pjson";		
+		}
+		//var capaUrlQueryJson 	=	capaUrlQuery;
+		$.getJSON(capaUrlQueryJson,function(data)
+		{			
+			var recorr 		=	0;
+			var valores		=	'';
+			//campo: campos, field: contenido
+			$.each(data, function(campoJson, nombre)
+			{
+				if (campoJson == 'fields')
+				{								
+					//Iteramos sobre el numero de campos
+					var ncampos = campoJson.length - 1;									
+					for (cont = 0; cont < ncampos; cont++)
+					{	
+						valores	=	nombre[cont]['alias'];
+						//Asignamos los campos para Query Map que no sean de tipo esriFieldTypeGeometry 
+						if (nombre[cont]['type'] != 'esriFieldTypeGeometry')
+						{
+							items.push(valores);
+						}										
+					}																		
+				}
+			});			
+		});
+		return items;
+	}	
 });
