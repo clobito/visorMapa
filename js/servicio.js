@@ -49,7 +49,7 @@ $(document).ready(function()
 	  	//var xmlUrl	=	"datosGruposTematicosNube.xml";
 	  	//var xmlUrl		=	"datosGruposTematicosMapasige.xml";
 		var servicio 	= 	getURLParam("s");
-		alert("URL Servicio =>"+servicio);		
+		alert("URL Servicio... =>"+servicio);		
 		var indicadores = new dojox.data.XmlStore({url: xmlUrl, rootItem: "servicio"});		
 
 		var obtieneIndicador = function(items, request){
@@ -265,6 +265,8 @@ $(document).ready(function()
 					Cambio realizado: Cargar los vinculos de redes sociales
 					Fecha actualizado: 19/10/2015
 					Cambio realizado: Implementar el cargue de la información asociando	los campos del Query en la sección "Fields"
+					Fecha actualizado: 20/10/2015
+					Cambio realizado: Ajuste del cargue de la información al método queryArray()
 					*/
 
 					//esri.hide(dojo.byId("carga"));
@@ -288,7 +290,7 @@ $(document).ready(function()
 					//Paso 1.Obtener el identify del xml, basado en la información del atributo layer.
 					//En var identifyIds => array
 
-					//alert("Url para identify=>"+capaUrl+",numero identify:"+identifyIds.length);
+					alert("Url para identify=>"+capaUrl+",numero identify:"+identifyIds.length);
 					//Evaluamos si se envía 1 identify
 					if (identifyIds.length == 1)
 					{
@@ -298,25 +300,30 @@ $(document).ready(function()
 						//var flag 			=	0;
 						var flag 			=	1;
 						//Paso 3. Implementación del Parser para traer el JSON en el campo 'fields' a un arreglo
-						var items 			=	[];						
+						var itemsAlias,items 			=	[];
+												
 						
 						//Petición sincrónica
-						/*$.ajaxSetup({
+						$.ajaxSetup({
 						    async: false
 						});
-						items 				=	QueryArray(capaUrlQuery,flag);
+						//Arreglo de los campos tipo alias
+						itemsAlias 				=	queryArray(capaUrlQuery,flag,'alias');
+						//Arreglo de los campos Name para realizar la consulta
+						items					=	queryArray(capaUrlQuery,flag,'name');
 						alert("Arreglo Cantidad =>"+items.length);
 						for (cont=0; cont < items.length; ++cont)
 						{
 							alert("Campos Query =>"+items[cont]);
 						}
 						
+						
 						//Petición asincrónica
 						$.ajaxSetup({
 						    async: true
-						});*/							
+						});							
 						
-						/*//Paso 3.Invocamos el servicio de Query Task
+						//Paso 3.Invocamos el servicio de Query Task
 						var queryTask 		=	new QueryTask(capaUrlQuery); 
 						
 						//Paso 4.Construcción del filtro para consulta
@@ -338,59 +345,59 @@ $(document).ready(function()
 						//Armado del content según arreglo creado en paso 3
 						for (cont = 0; cont < items.length; cont++)	
 						{
-							content += "<b>"+items[cont]+":</b>"+"${"+items[cont]+"}<br>";								
+							content += "<b>"+itemsAlias[cont]+":</b>"+"${"+items[cont]+"}<br>";								
 						}
 						//Renderizar título y contenido al InfoWindow 
 						infoTemplate.setTitle(title);
 						infoTemplate.setContent(content);
 
 						//Declaramos tamaño del infoWindow
-						mapMain.infoWindow.resize(245, 125);*/
+						mapMain.infoWindow.resize(245, 125);
 
 						//Del ejemplo
-						//Paso 3.Invocamos el servicio de Query Task
+						/*//Paso 3.Invocamos el servicio de Query Task
 						var queryTask 		=	new QueryTask(capaUrlQuery); 
 						//Paso 4.Construcción del filtro para consulta
 						var query 			=	new Query();
 						query.returnGeometry	=	true;
-	        			/*query.outFields			=	[
+	        			query.outFields			=	[
 	        				"NAME",
 	        				"STATE_NAME", 
 	        				"POP2000", 
 	        				"POP2007", 
 	        				"POP00_SQMI", 
 	        				"POP07_SQMI"
-	        				//"*"
+	        				"*"
 	        			];*/
-	        			query.outFields			=	[
-	        				"CODIGO",
-	        				"FIRST_NOM",
-	        				"DensidadPoblacionCabecera_Ha"
+	        			/*query.outFields			=	[
+	        				"OBJECTID",
+	        				"COD_MPIO",
+	        				"FIRST_NOM"
 	        			];
 	        			query.outSpatialReference=
 			        	{
 			        		"wkid": 102100
 			        		//"wkid": 4326
-			        	};
-	        			query.where = //"";
-		        		/*"STATE_NAME = 'South Carolina'";
+			        	};*/
+	        			/*query.where = //"";
+		        		"STATE_NAME = 'South Carolina'";
 		        		"STATE_NAME LIKE '%N%' OR STATE_NAME LIKE '%U%";
 		        		"NAME LIKE 'A%' OR NAME LIKE 'B%'";
-		        		"STATE_NAME LIKE 'M%' AND NAME LIKE 'H%' ";*/
-		        		"CODIGO > 0";
+		        		"STATE_NAME LIKE 'M%' AND NAME LIKE 'H%' ";
+		        		"COD_MPIO IS NOT NULL";*/
 
 		        		//Visualización de campos, junto con sus labels en InfoWindow
-			        	var infoTemplate=	new InfoTemplate();
+			        	/*var infoTemplate=	new InfoTemplate();
 			        	var title 		=	"${CODIGO}-${FIRST_NOM}";
 			        	//var title 		=	"${NAME}-${STATE_NAME}";
 			        	//var title 	=	"Ensayo";
-			            /*var content = "<b>2000 Population: </b>${POP2000}<br/>" +
+			            var content = "<b>2000 Population: </b>${POP2000}<br/>" +
 			                          "<b>2000 Population per Sq. Mi.: </b>${POP00_SQMI}<br/>" +
 			                          "<b>2007 Population: </b>${POP2007}<br/>" +
-			                          "<b>2007 Population per Sq. Mi.: </b>${POP07_SQMI}";*/
-		              	var content = "<b>Num.Personas: </b>${DensidadPoblacionCabecera_Ha}<br/>" + "";
+			                          "<b>2007 Population per Sq. Mi.: </b>${POP07_SQMI}";
+		              	var content = "<b>Municipio: </b>${COD_MPIO}<br/>" + "";
 			            //Renderizar titulo y contenidos del InfoWindow
-			            //infoTemplate.setTitle("${NAME}");
+			            //infoTemplate.setTitle("${NAME}");*/
 			            infoTemplate.setTitle(title);
 			            infoTemplate.setContent(content);
 						
@@ -456,7 +463,7 @@ $(document).ready(function()
               	 				map.infoWindow.hide();*/
 			              	 });			              	 
 						});
-						queryTask.execute(query);						
+						queryTask.execute(query);
 					}
 					//Cuando son más de 1, los recorremos con una iteracción	
 					else
@@ -943,10 +950,20 @@ $(document).ready(function()
 		efectosPantallaCompleta();
 	});
 
-	function QueryArray(capaUrlQuery,flag)
+	function queryArray(capaUrlQuery,flag,tField)
 	{
-		//Fecha creado: 19/10/2015
-		//Parametros: capaurlQuery => String; flag => Integer
+		/*//Fecha creado: 19/10/2015
+		Propósito: Generar arreglo de parámetros para uso con la clase Query
+		Parámetros: 1.URL para procesar el query.2.Indicador para establecer tipo de dato a procesar en el servidor (null,json).3.Tipo de campo a recorrer en el arreglo (name, type, alias)
+		Fecha actualizado: 20/10/2015
+		Cambio realizado: Procesar petición de llamado a JSON empleando el metodo POST.
+		Fecha actualizado: 20/10/2015
+		Cambio realizado: Implementar el tipo de campo (name, alias)
+		Fecha actualizado: 20/10/2015
+		Cambio realizado: Cambio nombre método QueryArray => queryArray
+		Observaciones: Fuente => http://www.abeautifulsite.net/postjson-for-jquery/
+		
+		//Parametros: capaurlQuery => String; flag => Integer*/
 		var items		=	[];	
 		//var capaUrlQueryJson	=	capaUrlQuery+"?f=json";
 		if (flag == 0)
@@ -958,7 +975,8 @@ $(document).ready(function()
 			var capaUrlQueryJson	=	capaUrlQuery+"?f=pjson";		
 		}
 		//var capaUrlQueryJson 	=	capaUrlQuery;
-		$.getJSON(capaUrlQueryJson,function(data)
+		//$.getJSON(capaUrlQueryJson,function(data)
+		$.post(capaUrlQueryJson,function(data)
 		{			
 			var recorr 		=	0;
 			var valores		=	'';
@@ -971,7 +989,8 @@ $(document).ready(function()
 					var ncampos = campoJson.length - 1;									
 					for (cont = 0; cont < ncampos; cont++)
 					{	
-						valores	=	nombre[cont]['alias'];
+						//valores	=	nombre[cont]['alias'];
+						valores	=	nombre[cont][tField];
 						//Asignamos los campos para Query Map que no sean de tipo esriFieldTypeGeometry 
 						if (nombre[cont]['type'] != 'esriFieldTypeGeometry')
 						{
@@ -980,7 +999,7 @@ $(document).ready(function()
 					}																		
 				}
 			});			
-		});
+		},'json');
 		return items;
 	}	
 });
