@@ -290,7 +290,7 @@ $(document).ready(function()
 					//Paso 1.Obtener el identify del xml, basado en la información del atributo layer.
 					//En var identifyIds => array
 
-					alert("Url para identify=>"+capaUrl+",numero identify:"+identifyIds.length);
+					//alert("Url para identify=>"+capaUrl+",numero identify:"+identifyIds.length);
 					//Evaluamos si se envía 1 identify
 					if (identifyIds.length == 1)
 					{
@@ -307,15 +307,15 @@ $(document).ready(function()
 						$.ajaxSetup({
 						    async: false
 						});
-						//Arreglo de los campos tipo alias
+						//Arreglo de los campos tipo alias para visualizarlos en le InfoWindow
 						itemsAlias 				=	queryArray(capaUrlQuery,flag,'alias');
 						//Arreglo de los campos Name para realizar la consulta
 						items					=	queryArray(capaUrlQuery,flag,'name');
-						alert("Arreglo Cantidad =>"+items.length);
+						/*alert("Arreglo Cantidad =>"+items.length);
 						for (cont=0; cont < items.length; ++cont)
 						{
 							alert("Campos Query =>"+items[cont]);
-						}
+						}*/
 						
 						
 						//Petición asincrónica
@@ -334,7 +334,9 @@ $(document).ready(function()
 			        	{
 			        		"wkid": 102100
 			        	};
-						query.where			=	items[2]+" "+"LIKE"+" "+"'c%'";
+						//query.where			=	items[2]+" "+"LIKE"+" "+"'c%'";
+						query.where			=	items[0]+" "+"IS NOT NULL";
+						//alert("Clausula WHERE =>"+items[0]+" "+"IS NOT NULL");
 						
 						//Paso 5.Visualización de campos, junto con sus labels en InfoWindow							
 						//var infoTemplate 	=	new InfoTemplate("Attributes", "${*}");
@@ -354,60 +356,11 @@ $(document).ready(function()
 						//Declaramos tamaño del infoWindow
 						mapMain.infoWindow.resize(245, 125);
 
-						//Del ejemplo
-						/*//Paso 3.Invocamos el servicio de Query Task
-						var queryTask 		=	new QueryTask(capaUrlQuery); 
-						//Paso 4.Construcción del filtro para consulta
-						var query 			=	new Query();
-						query.returnGeometry	=	true;
-	        			query.outFields			=	[
-	        				"NAME",
-	        				"STATE_NAME", 
-	        				"POP2000", 
-	        				"POP2007", 
-	        				"POP00_SQMI", 
-	        				"POP07_SQMI"
-	        				"*"
-	        			];*/
-	        			/*query.outFields			=	[
-	        				"OBJECTID",
-	        				"COD_MPIO",
-	        				"FIRST_NOM"
-	        			];
-	        			query.outSpatialReference=
-			        	{
-			        		"wkid": 102100
-			        		//"wkid": 4326
-			        	};*/
-	        			/*query.where = //"";
-		        		"STATE_NAME = 'South Carolina'";
-		        		"STATE_NAME LIKE '%N%' OR STATE_NAME LIKE '%U%";
-		        		"NAME LIKE 'A%' OR NAME LIKE 'B%'";
-		        		"STATE_NAME LIKE 'M%' AND NAME LIKE 'H%' ";
-		        		"COD_MPIO IS NOT NULL";*/
-
-		        		//Visualización de campos, junto con sus labels en InfoWindow
-			        	/*var infoTemplate=	new InfoTemplate();
-			        	var title 		=	"${CODIGO}-${FIRST_NOM}";
-			        	//var title 		=	"${NAME}-${STATE_NAME}";
-			        	//var title 	=	"Ensayo";
-			            var content = "<b>2000 Population: </b>${POP2000}<br/>" +
-			                          "<b>2000 Population per Sq. Mi.: </b>${POP00_SQMI}<br/>" +
-			                          "<b>2007 Population: </b>${POP2007}<br/>" +
-			                          "<b>2007 Population per Sq. Mi.: </b>${POP07_SQMI}";
-		              	var content = "<b>Municipio: </b>${COD_MPIO}<br/>" + "";
-			            //Renderizar titulo y contenidos del InfoWindow
-			            //infoTemplate.setTitle("${NAME}");*/
-			            infoTemplate.setTitle(title);
-			            infoTemplate.setContent(content);
-						
-						mapMain.infoWindow.resize(245, 125);
 						
 						//Visualización al completar la creación del query
 						queryTask.on("complete", function (event)
 						{
-							alert(content);
-							//return false;
+							alert("Titulo =>"+title+",Contenido =>"+content);							
 							mapMain.graphics.clear();								
 							//Resaltado de simbolos
 							var highlightSymbol = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
@@ -438,41 +391,164 @@ $(document).ready(function()
 			              	mapMain.addLayer(countiesGraphicsLayer);
 			              	//Habilitar mouse con el fin de obtener la información cuando un evento se dispara
 			              	mapMain.graphics.enableMouseEvents();				              	
-			              	//Evento "Mouse-Over": Desplegar cuadro informativo
-			              	countiesGraphicsLayer.on("mouse-over",function (event)
+			              	//Evento "Mouse-Over": Desplegar cuadro informativo al colocar el mouse en una zona del mapa
+			              	/*countiesGraphicsLayer.on("mouse-over",function (event)
 			              	{
 			              		//use the maps graphics layer as the highlight layer
-			              	 	/*map.graphics.clear();
+			              	 	mapMain.graphics.clear();
 			              	 	var graphic 		=	event.graphic;
 			              	 	//Establecer contenido
-			              	 	map.infoWindow.setContent(graphic.getContent());
+			              	 	mapMain.infoWindow.setContent(graphic.getContent());
 			              	 	//Establecer información en la ventana correspondiente a cada punto en el mapa
-			              	 	map.infoWindow.setTitle(graphic.getTitle());
+			              	 	mapMain.infoWindow.setTitle(graphic.getTitle());
 			              	 	//Resaltado del segmento al colocar el mouse sobre el mismo
 			              	 	var highlightGraphic=	new Graphic(graphic.geometry, highlightSymbol);
-			              	 	map.graphics.add(highlightGraphic);
-			              	 	map.infoWindow.show(event.screenPoint, map.getInfoWindowAnchor(event.screenPoint));*/
-			              	});
+			              	 	mapMain.graphics.add(highlightGraphic);
+			              	 	mapMain.infoWindow.show(event.screenPoint, map.getInfoWindowAnchor(event.screenPoint));
+			              	});*/
 			              	//listen for when map.graphics mouse-out event is fired
 			              	 //and then clear the highlight graphic
 			              	 //and hide the info window
 			              	 //Evento "mouse-out"	
-			              	 mapMain.graphics.on("mouse-out",function()
+			              	 /*mapMain.graphics.on("mouse-out",function()
 			              	 {
-			              	 	/*map.graphics.clear();
-              	 				map.infoWindow.hide();*/
-			              	 });			              	 
+			              	 	mapMain.graphics.clear();
+              	 				mapMain.infoWindow.hide();
+			              	 });*/			              	 
 						});
 						queryTask.execute(query);
 					}
 					//Cuando son más de 1, los recorremos con una iteracción	
 					else
 					{
+						//Paso 2.Armamos la URL junto con el arreglo de identify's
+	for (recorreIdentify=0; recorreIdentify < identifyIds.length; ++recorreIdentify)
+	{	
+		var capaUrlQuery	=	capaUrl+"/"+identifyIds[recorreIdentify];	
+		//var capaUrlQuery	=	"http://sampleserver1.arcgisonline.com/ArcGIS/rest/services/Demographics/ESRI_Census_USA/MapServer/3";
+		//var flag 			=	0;
+		var flag 			=	1;
+		//Paso 3. Implementación del Parser para traer el JSON en el campo 'fields' a un arreglo
+		var itemsAlias,items =	[];
+								
+		
+		//Petición sincrónica
+		$.ajaxSetup({
+			async: false
+		});
+		//Arreglo de los campos tipo alias para visualizarlos en le InfoWindow
+		itemsAlias 				=	queryArray(capaUrlQuery,flag,'alias');
+		//Arreglo de los campos Name para realizar la consulta
+		items					=	queryArray(capaUrlQuery,flag,'name');
+		/*alert("Arreglo Cantidad =>"+items.length);
+		for (cont=0; cont < items.length; ++cont)
+		{
+			alert("Campos Query =>"+items[cont]);
+		}*/
+		
+		
+		//Petición asincrónica
+		$.ajaxSetup({
+			async: true
+		});							
+		
+		//Paso 4.Invocamos el servicio de Query Task
+		var queryTask 		=	new QueryTask(capaUrlQuery); 
+		
+		//Paso 5.Construcción del filtro para consulta
+		var query 			=	new Query();
+		query.returnGeometry=	true;
+		query.outFields		=	["*"];
+		query.outSpatialReference=
+		{
+			"wkid": 102100
+		};
+		//query.where			=	items[2]+" "+"LIKE"+" "+"'c%'";
+		query.where			=	items[0]+" "+"IS NOT NULL";
+		alert("Clausula WHERE =>"+items[0]+" "+"IS NOT NULL");
+		
+		//Paso 6.Visualización de campos, junto con sus labels en InfoWindow
+		//var infoTemplate 	=	new InfoTemplate("Attributes", "${*}");
+		var infoTemplate 	=	new InfoTemplate();
+		//Definición titulo, de acuerdo al paso 3
+		var title 			=	"${"+items[2]+"}";
+		var content 		=	"";
+		//Armado del content según arreglo creado en paso 3
+		for (cont = 0; cont < items.length; cont++)	
+		{
+			content += "<b>"+itemsAlias[cont]+":</b>"+"${"+items[cont]+"}<br>";								
+		}
+		//Renderizar título y contenido al InfoWindow 
+		infoTemplate.setTitle(title);
+		infoTemplate.setContent(content);
 
+		//Declaramos tamaño del infoWindow
+		mapMain.infoWindow.resize(245, 125);
+		
+		//Paso 7. Visualizar capas en el mapa después de la ejecución del query						
+		queryTask.on("complete", function (event)
+		{
+			alert("Titulo =>"+title+",Contenido =>"+content);							
+			mapMain.graphics.clear();								
+			//Resaltado de simbolos
+			var highlightSymbol = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
+				new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
+				new Color([255, 0, 0]), 3),
+				new Color([125, 125, 125, 0.35]));
+			//Simbolos
+			var symbol = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
+				 new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
+				 new Color([255, 255, 255, 0.35]), 1),
+				 new Color([125, 125, 125, 0.35]));
+		
+			var features = event.featureSet.features;
+			var countiesGraphicsLayer = new GraphicsLayer();
+			//QueryTask returns a featureSet.
+			//Loop through features in the featureSet and add them to the map.
+			var featureCount = features.length;				              	
+			for (var cont=0; cont < featureCount; cont++)
+			{
+				//Get the current feature from the featureSet.
+				//Feature is a graphic
+				var graphic = features[cont];
+				graphic.setSymbol(symbol);
+				graphic.setInfoTemplate(infoTemplate);
+				countiesGraphicsLayer.add(graphic);
+			}
+			//Desplegar en el mapa
+			mapMain.addLayer(countiesGraphicsLayer);
+			//Habilitar mouse con el fin de obtener la información cuando un evento se dispara
+			mapMain.graphics.enableMouseEvents();				              	
+			//Evento "Mouse-Over": Desplegar cuadro informativo
+			countiesGraphicsLayer.on("mouse-over",function (event)
+			{
+				//use the maps graphics layer as the highlight layer
+				map.graphics.clear();
+				var graphic 		=	event.graphic;
+				//Establecer contenido
+				map.infoWindow.setContent(graphic.getContent());
+				//Establecer información en la ventana correspondiente a cada punto en el mapa
+				map.infoWindow.setTitle(graphic.getTitle());
+				//Resaltado del segmento al colocar el mouse sobre el mismo
+				var highlightGraphic=	new Graphic(graphic.geometry, highlightSymbol);
+				map.graphics.add(highlightGraphic);
+				map.infoWindow.show(event.screenPoint, map.getInfoWindowAnchor(event.screenPoint));
+			});
+			//listen for when map.graphics mouse-out event is fired
+			 //and then clear the highlight graphic
+			 //and hide the info window
+			 //Evento "mouse-out"	
+			 mapMain.graphics.on("mouse-out",function()
+			 {
+				map.graphics.clear();
+				map.infoWindow.hide();
+			 });			              	 
+		});
+		queryTask.execute(query);
+	}
 					}
 					
 					//Finalizamos la ejecución del query
-					return false;
 				}
 
 				//Eventos de carga/descarga del mapa
