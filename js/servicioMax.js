@@ -11,7 +11,7 @@ $(document).ready(function()
 	dojo.require("esri.dijit.Legend");
 	dojo.require("esri.layers.FeatureLayer");
 	dojo.require("esri.layers.agstiled");
-	dojo.require("esri.dijit.Geocoder");
+	//dojo.require("esri.dijit.Geocoder");
 	dojo.require("esri.arcgis.utils");
 	dojo.require("dijit.form.CheckBox");
 	dojo.require("dojo.html");
@@ -196,30 +196,73 @@ $(document).ready(function()
 	/*Fecha actualizado: 13/10/2015
 	Cambio realizado: Adaptación librerias ArcGIS 3.14: map, ArcGISTiledMapServiceLayer y Geocoder
 	Fecha actualizado: 14/10/2015
-	Cambio realizado: Desactivar definición del mapa. Pasa a ser definición global*/	
+	Cambio realizado: Desactivar definición del mapa. Pasa a ser definición global
+	Fecha actualizado: 21/10/2015
+	Cambio realizado: Inclusión de los módulos tasks/IdentifyTask y tasks/IdentifyParameters
+	Fecha actualizado: 22/10/2015
+	Cambio realizado: Inclusión de los módulos layers/ArcGISDynamicMapServiceLayer, dijit/Popup, [dojo/_base/array, dojo/dom-construct (módulos del dojo framework)]
+	Fecha actualizado: 22/10/2015
+	Cambio realizado: Fix del Geocoder en ArcGIS 3.14
+	*/	
 		tituloLeyenda = titulo;
         //var mapMain;
         var geoCoder;
+        /*Creación del query para InfoWindow*/
+		//Flag para determinar la carga de información del servidor, formato pJson o formato json
+		var flag 			=	-1;
+		//Objetos
+		var queryTask,query;
+		var infoTemplate;
+		//var identifyTask;
+		var popUp;
+		var capaUrlQuery 	=	'';
+		var title,content 	=	'';
+		//Arrays para procesar la carga de campos ejecutando QueryTask.
+		var itemsAlias,items=	[];
         require([
 	        "esri/map",
 	        "esri/layers/ArcGISTiledMapServiceLayer",
+	        "esri/layers/ArcGISDynamicMapServiceLayer",
 	        "esri/dijit/Geocoder",
 	        "esri/graphic",
 	        "esri/InfoTemplate",
 	        "esri/SpatialReference",
 	        "esri/geometry/Extent",
 	        "esri/layers/GraphicsLayer",
+	        "esri/symbols/SimpleFillSymbol",
+	        "esri/symbols/SimpleLineSymbol",
+	        "esri/tasks/query",
+        	"esri/tasks/QueryTask",
+        	"esri/tasks/IdentifyTask",
+        	"esri/tasks/IdentifyParameters",
+        	"esri/Color",
+        	"esri/dijit/Popup",
+        	"dojo/_base/array",
+        	"dojo/dom-construct",
 	        "dojo/domReady!"
         ], function (
-        	Map, ArcGISTiledMapServiceLayer, Geocoder, Graphic, InfoTemplate, SpatialReference, Extent, GraphicsLayer
+        	Map, ArcGISTiledMapServiceLayer, ArcGISDynamicMapServiceLayer, Geocoder, Graphic, InfoTemplate, 
+        	SpatialReference, Extent, GraphicsLayer, SimpleFillSymbol, SimpleLineSymbol, 
+        	Query, QueryTask, IdentifyTask, IdentifyParameters, Color, Popup, arrayUtils, 
+        	domConstruct
         	)
         	{
+        		//Crear la ventana flotante de información
+				popUp 	=	new Popup(
+				{
+					fillSymbol:  new SimpleFillSymbol(
+						SimpleFillSymbol.STYLE_SOLID,
+						new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
+							new Color([255, 0, 0]), 2),
+						new Color([255, 255, 0, 0.25]))
+				},domConstruct.create("div"));
         		mapMain =	new Map("map",
         		{
         			basemap: "streets",
         			center: [-74.095938, 4.647016],        			    			
         			zoom:6,
-        			sliderPosition: "bottom-right"
+        			sliderPosition: "bottom-right",
+        			infoWindow: popUp
         		});
 
         		//Carga de la capa en la nueva libreria
@@ -257,52 +300,103 @@ $(document).ready(function()
 				//Implementación del geoCoder
 				geoCoder = new Geocoder(
 				{
-					map: map,
 					autoComplete: true,
 					arcgisGeocoder:
 					{
 						placeholder: "Introducir una Ubicación"
-					}
+					},
+					map: mapMain
+				},"busqueda");
 
-				},dojo.byId("busqueda"));
+				//Inicia el Buscador
+				geoCoder.startup();
 
 				//Evento para carga de la capa del mapa
 				mapEvents 	= 	mapMain.on("load", setLoadMap);
 
-				//Método para procesar carga del mapa
-				function setLoadMap(mapEvents)
+				//Carga de la capa dinámica - FUENTE: https://developers.arcgis.com/javascript/jssamples/find_popup.html
+				mapMain.addLayer(new ArcGISDynamicMapServiceLayer(capaUrl,
 				{
-					//Fecha actualizado: 15/10/2015
-					//Cambio realizado: Ocultar botón de maximizar pantalla y generación documento en hoja de calculo cuando se carga el mapa.  
-					//Ocultar botón de maximizar pantalla
-					$('#icono_fs').attr('style','visibility:hidden');
-					$('#excelMax').attr('style','visibility:hidden');
-					//Método para preparar mapa
-					prepararMapa(mapEvents);
+					opacity: 0.55
+				}));
+				//Método para procesar carga del mapa
+				function setLoadMap(event)
+				{
+					/*Fecha actualizado: 15/10/2015
+					Cambio realizado: Ocultar iconos de Maximizar indicador y descarga de excel cuando se obtiene el mapa
+					Fecha actualizado: 22/10/2015
+					Cambio realizado: Implementar la carga del InfoWindow para ejecutar carga de información de acuerdo al mapa y sus Identify's, al dar click sobre la región del mapa
+					Fecha actualizado: 22/10/2015
+					Cambio realizado: Cambio de parámetro "mapEvents" => "event"
+					*/
+					/*esri.hide($('#icono_amp'));
+					esri.hide($('#excel'));*/
+					$('#icono_amp').attr('style','visibility:visible');					
+					prepararMapa();
+					mapMain.on("click",ejecutarIdentifyTarea);					
 				}
 
-				//Eventos de carga/descarga de capas del mapa
+				function prepararMapa() 
+				{			
+					/*Fecha actualizado: 22/10/2015
+					Cambio realizado: Determinar los parametros para procesar los Identify del mapa*/
+					
+					identifyTask 						= 	new IdentifyTask(capaUrl);
+					
+					identifyParametros					=	new IdentifyParameters();
+			        identifyParametros.tolerance 		=	1;
+			        identifyParametros.returnGeometry	=	true; 
+			        identifyParametros.layerOption 		=	IdentifyParameters.LAYER_OPTION_TOP;
+					identifyParametros.layerIds 		= 	identifyIds;
+			        identifyParametros.width  			= 	mapMain.width;
+			        identifyParametros.height 			= 	mapMain.height;
+				}
+
+				//Evento al finalizar la actualización del mapa 
 				mapEvents 	= 	mapMain.on("update-end", setLoadEnd);
 
 				//Método para procesar el evento "update-end"
-				function setLoadEnd()
+				function setLoadEnd(event)
 				{
-					/*Fecha actualizado: 14/10/2015
+					/*Parámetro: Evento aplicado al finalizar la actualización del mapa (22/10/2015)
+					Fecha actualizado: 14/10/2015
 					Cambio realizado: Cargue del vinculo para descargar información en hoja de calculo
-					Fecha actualizado: 15/10/2015
-					Cambio realizado: Visualizar botón de maximizar pantalla y de cuadro de Excel
+					Fecha actualizado: 16/10/2015
+					Cambio realizado: Implementar visualización de información empleando el componente QueryTask()
+					Fecha actualizado: 19/10/2015
+					Cambio realizado: Cargar los vinculos de redes sociales
+					Fecha actualizado: 19/10/2015
+					Cambio realizado: Implementar el cargue de la información asociando	los campos del Query en la sección "Fields"
+					Fecha actualizado: 20/10/2015
+					Cambio realizado: Ajuste del cargue de la información al método queryArray()
+					Fecha actualizado: 21/10/2015
+					Cambio realizado: Visualización y optimización del cargue de InfoWindow por ejecución del QueryTask.
+					Fecha actualizado: 21/10/2015
+					Cambio realizado: Implementación de cargue de la ventana InfoWindow para varios Identify's.
+					Fecha actualizado: 21/10/2015
+					Cambio realizado: No visualizar en el InfoWindow la información del campo OBJECTID
+					Fecha actualizado: 22/10/2015
+					Cambio realizado: Implementar carga de información empleando las clases IdentifyTask y IdentifyParameters (https://developers.arcgis.com/javascript/jssamples/find_popup.html)
 					*/
+
 					//esri.hide(dojo.byId("carga"));
 					$("#excel").html(contenido);
-					$('#icono_fs').attr('style','visibility:visible');
-					$('#excelMax').attr('style','visibility:visible');					
+					iniciarRedesSociales(titulo, capas);
+					
+					//esri.show(dojo.byId("excel"));
+					/*esri.show($("#excel"));
+					esri.show($('#icono_amp'));*/										
 					$(".viewRestore").click(function()
 					{
 						/*Fecha actualizado: 14/10/2015
-						Cambio realizado: Habilitar vinculo "Reestablecer a vista predeterminada".*/
+						Cambio realizado: Habilitar vinculo "Reestablecer a vista predeterminada".
+						Fecha actualizado: 22/10/2015
+						Cambio realizado: Cuando se restaure la vista, borrar la caja de búsqueda.
+						*/
 
 						var limites = new esri.geometry.Extent({"xmin":-9495735,"ymin":-83164,"xmax":-7186725,"ymax":1406441,"spatialReference":{"wkid":102100}});
 						mapMain.setExtent(limites);
+						$('#busqueda_input').val('');
 					});
 				}
 
@@ -330,9 +424,9 @@ $(document).ready(function()
 					  "callbackParamName": "callback"
 					});
 					peticionLeyenda.then(peticionLeyendaExitosa, peticionFallida);
-					$("#metadata").html(metadata);
-					iniciarRedesSociales(titulo, capas);
-				}
+					$("#metadata").html(metadata);				
+				}				
+				
         	});
 	}
 
@@ -498,10 +592,16 @@ $(document).ready(function()
         identifyParametros.height = map.height;
 	}
 
-	function ejecutarIdentifyTarea(evt) {
-
+	function ejecutarIdentifyTarea(evt) 
+	{
+		/*Fecha actualizado: 22/10/2015
+		Cambio realizado: Cambio "map" => "mapMain".
+		Fecha actualizado: 22/10/2015
+		Cambio realizado: Adición titulo al InfoWindow
+		*/
+		
         identifyParametros.geometry = evt.mapPoint;
-        identifyParametros.mapExtent = map.extent;
+        identifyParametros.mapExtent = mapMain.extent;
        
         var diferido = identifyTask.execute(identifyParametros);
 
@@ -509,7 +609,7 @@ $(document).ready(function()
           // Callback para consultar todos los features    
           return dojo.map(respuesta, function(resultado) {
             var feature = resultado.feature;
-			var cadenaInfo = "<b>" + resultado.layerName + "</b><br><br>";
+			var cadenaInfo = "<b>" + resultado.layerName + "</b><br><br>";			
 			// Guarda el array de todos los features identificados.
 			for(var atributo in feature.attributes) {
 				if(atributo != "OBJECTID" 
@@ -523,17 +623,18 @@ $(document).ready(function()
 				}
 			}
 			
-			var template = new esri.InfoTemplate("", cadenaInfo);
-			feature.setInfoTemplate(template);
-            
+			//var template = 	new InfoTemplate("", cadenaInfo);
+			var template = new esri.InfoTemplate();			
+			template.setTitle(resultado.layerName);
+			template.setContent(cadenaInfo);
+			feature.setInfoTemplate(template);            
             return feature;
-          });
+          });          
         });
-
-      
         // Muestra el array de todos los features identificados.
-        map.infoWindow.setFeatures([ diferido ]);
-        map.infoWindow.show(evt.mapPoint);		
+       
+        mapMain.infoWindow.setFeatures([ diferido ]);
+        mapMain.infoWindow.show(evt.mapPoint);		
 	}
 
 	function buscaEnArray(arr, obj) {
