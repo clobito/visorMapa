@@ -12,7 +12,7 @@ $(document).ready(function()
 	dojo.require("esri.dijit.Legend");
 	dojo.require("esri.layers.FeatureLayer");
 	dojo.require("esri.layers.agstiled");
-	dojo.require("esri.dijit.Geocoder");
+	//dojo.require("esri.dijit.Geocoder");
 	dojo.require("esri.arcgis.utils");
 	dojo.require("dijit.form.CheckBox");
 	dojo.require("dojo.html");
@@ -25,7 +25,7 @@ $(document).ready(function()
 	//Cambio realizado: Variable global para el mapa, para usar la opción "Reestablecer a vista predeterminada"
 	var mapMain;
 
-	var map, identifyTarea, identifyParametros, imagen = "", capaUrl = "", contenido = "", metadata = "", fs = false, leyendaCapas = [], infoCapas = [], ocultaCapas = [], leyendaIds = [], identifyIds = [];
+	var identifyTask, identifyParametros, imagen = "", capaUrl = "", contenido = "", metadata = "", fs = false, leyendaCapas = [], infoCapas = [], ocultaCapas = [], leyendaIds = [], identifyIds = [];
 
 	/*Fecha actualizado: 16/10/2015
 	Cambio realizado: Establecer variable para obtener el XML Source como global. Se desactiva del método init()
@@ -49,7 +49,7 @@ $(document).ready(function()
 	  	//var xmlUrl	=	"datosGruposTematicosNube.xml";
 	  	//var xmlUrl		=	"datosGruposTematicosMapasige.xml";
 		var servicio 	= 	getURLParam("s");
-		alert("URL Servicio... =>"+servicio);		
+		
 		var indicadores = new dojox.data.XmlStore({url: xmlUrl, rootItem: "servicio"});		
 
 		var obtieneIndicador = function(items, request){
@@ -81,15 +81,13 @@ $(document).ready(function()
 			}
 			//si hay mas de una capa para mostrar colocar valores separados por comas, por ej: [3,7]
 			else
-			{			
+			{
 				identifyIds = indicadores.getValue(item, "@identify").split(",");
 			}			
 			
 			//Direccion URL del servicio de capas
 			capaUrl = indicadores.getValue(item, "@layer");
-			//Configuración del URL			
-			alert("Capa:"+capaUrl);
-	
+			//Configuración del URL	
 			//Url del Archivo Excel u otro formato
 			if(indicadores.getValue(item, "@table") != null && indicadores.getValue(item, "@table") != "")
 			{
@@ -149,23 +147,42 @@ $(document).ready(function()
 	}
 
 	function iniciarMapa(titulo, capas) {
-	/*Fecha actualizado: 13/10/2015
-	Cambio realizado: Adaptación librerias ArcGIS 3.14: map, ArcGISTiledMapServiceLayer y Geocoder
-	Fecha actualizado: 14/10/2015
-	Cambio realizado: Desactivar definición del mapa. Pasa a ser definición global
-	Fecha actualizado: 16/10/2015
-	Cambio realizado: Desactivación de cargue de redes sociales en vista normal
-	Fecha actualizado: 16/10/2015
-	Cambio realizado: Inclusión de los módulos query, QueryTask
-	Fecha actualizado: 19/10/2015
-	Cambio realizado: Inclusión de los módulos symbols/SimpleFillSymbol, esri/Color y symbols/SimpleLineSymbol
-	*/	
+		/*Fecha actualizado: 13/10/2015
+		Cambio realizado: Adaptación librerias ArcGIS 3.14: map, ArcGISTiledMapServiceLayer y Geocoder
+		Fecha actualizado: 14/10/2015
+		Cambio realizado: Desactivar definición del mapa. Pasa a ser definición global
+		Fecha actualizado: 16/10/2015
+		Cambio realizado: Desactivación de cargue de redes sociales en vista normal
+		Fecha actualizado: 16/10/2015
+		Cambio realizado: Inclusión de los módulos query, QueryTask
+		Fecha actualizado: 19/10/2015
+		Cambio realizado: Inclusión de los módulos symbols/SimpleFillSymbol, esri/Color y symbols/SimpleLineSymbol
+		Fecha actualizado: 21/10/2015
+		Cambio realizado: Inclusión de los módulos tasks/IdentifyTask y tasks/IdentifyParameters
+		Fecha actualizado: 22/10/2015
+		Cambio realizado: Inclusión de los módulos layers/ArcGISDynamicMapServiceLayer, dijit/Popup, [dojo/_base/array, dojo/dom-construct (módulos del dojo framework)]
+		Fecha actualizado: 22/10/2015
+		Cambio realizado: Fix del Geocoder en ArcGIS 3.14
+		*/	
 		tituloLeyenda = titulo;
         //var mapMain;
         var geoCoder;
+        /*Creación del query para InfoWindow*/
+		//Flag para determinar la carga de información del servidor, formato pJson o formato json
+		var flag 			=	-1;
+		//Objetos
+		var queryTask,query;
+		var infoTemplate;
+		//var identifyTask;
+		var popUp;
+		var capaUrlQuery 	=	'';
+		var title,content 	=	'';
+		//Arrays para procesar la carga de campos ejecutando QueryTask.
+		var itemsAlias,items=	[];
         require([
 	        "esri/map",
 	        "esri/layers/ArcGISTiledMapServiceLayer",
+	        "esri/layers/ArcGISDynamicMapServiceLayer",
 	        "esri/dijit/Geocoder",
 	        "esri/graphic",
 	        "esri/InfoTemplate",
@@ -176,20 +193,36 @@ $(document).ready(function()
 	        "esri/symbols/SimpleLineSymbol",
 	        "esri/tasks/query",
         	"esri/tasks/QueryTask",
+        	"esri/tasks/IdentifyTask",
+        	"esri/tasks/IdentifyParameters",
         	"esri/Color",
+        	"esri/dijit/Popup",
+        	"dojo/_base/array",
+        	"dojo/dom-construct",
 	        "dojo/domReady!"
         ], function (
-        	Map, ArcGISTiledMapServiceLayer, Geocoder, Graphic, InfoTemplate, 
+        	Map, ArcGISTiledMapServiceLayer, ArcGISDynamicMapServiceLayer, Geocoder, Graphic, InfoTemplate, 
         	SpatialReference, Extent, GraphicsLayer, SimpleFillSymbol, SimpleLineSymbol, 
-        	Query, QueryTask, Color
+        	Query, QueryTask, IdentifyTask, IdentifyParameters, Color, Popup, arrayUtils, 
+        	domConstruct
         	)
         	{
+        		//Crear la ventana flotante de información
+				popUp 	=	new Popup(
+				{
+					fillSymbol:  new SimpleFillSymbol(
+						SimpleFillSymbol.STYLE_SOLID,
+						new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
+							new Color([255, 0, 0]), 2),
+						new Color([255, 255, 0, 0.25]))
+				},domConstruct.create("div"));
         		mapMain =	new Map("map",
         		{
         			basemap: "streets",
         			center: [-74.095938, 4.647016],        			    			
         			zoom:6,
-        			sliderPosition: "bottom-right"
+        			sliderPosition: "bottom-right",
+        			infoWindow: popUp
         		});
 
         		//Carga de la capa en la nueva libreria
@@ -227,37 +260,66 @@ $(document).ready(function()
 				//Implementación del geoCoder
 				geoCoder = new Geocoder(
 				{
-					map: map,
 					autoComplete: true,
 					arcgisGeocoder:
 					{
 						placeholder: "Introducir una Ubicación"
-					}
+					},
+					map: mapMain
+				},"busqueda");
 
-				},dojo.byId("busqueda"));
+				//Inicia el Buscador
+				geoCoder.startup();
 
 				//Evento para carga de la capa del mapa
 				mapEvents 	= 	mapMain.on("load", setLoadMap);
 
+				//Carga de la capa dinámica - FUENTE: https://developers.arcgis.com/javascript/jssamples/find_popup.html
+				mapMain.addLayer(new ArcGISDynamicMapServiceLayer(capaUrl,
+				{
+					opacity: 0.55
+				}));
 				//Método para procesar carga del mapa
-				function setLoadMap(mapEvents)
+				function setLoadMap(event)
 				{
 					/*Fecha actualizado: 15/10/2015
 					Cambio realizado: Ocultar iconos de Maximizar indicador y descarga de excel cuando se obtiene el mapa
+					Fecha actualizado: 22/10/2015
+					Cambio realizado: Implementar la carga del InfoWindow para ejecutar carga de información de acuerdo al mapa y sus Identify's, al dar click sobre la región del mapa
+					Fecha actualizado: 22/10/2015
+					Cambio realizado: Cambio de parámetro "mapEvents" => "event"
 					*/
 					/*esri.hide($('#icono_amp'));
 					esri.hide($('#excel'));*/
-					$('#icono_amp').attr('style','visibility:visible');
-					prepararMapa(mapEvents);					
+					$('#icono_amp').attr('style','visibility:visible');					
+					prepararMapa();
+					mapMain.on("click",ejecutarIdentifyTarea);					
 				}
 
-				//Eventos de carga/descarga de capas del mapa
+				function prepararMapa() 
+				{			
+					/*Fecha actualizado: 22/10/2015
+					Cambio realizado: Determinar los parametros para procesar los Identify del mapa*/
+					
+					identifyTask 						= 	new IdentifyTask(capaUrl);
+					
+					identifyParametros					=	new IdentifyParameters();
+			        identifyParametros.tolerance 		=	1;
+			        identifyParametros.returnGeometry	=	true; 
+			        identifyParametros.layerOption 		=	IdentifyParameters.LAYER_OPTION_TOP;
+					identifyParametros.layerIds 		= 	identifyIds;
+			        identifyParametros.width  			= 	mapMain.width;
+			        identifyParametros.height 			= 	mapMain.height;
+				}
+
+				//Evento al finalizar la actualización del mapa 
 				mapEvents 	= 	mapMain.on("update-end", setLoadEnd);
 
 				//Método para procesar el evento "update-end"
-				function setLoadEnd()
+				function setLoadEnd(event)
 				{
-					/*Fecha actualizado: 14/10/2015
+					/*Parámetro: Evento aplicado al finalizar la actualización del mapa (22/10/2015)
+					Fecha actualizado: 14/10/2015
 					Cambio realizado: Cargue del vinculo para descargar información en hoja de calculo
 					Fecha actualizado: 16/10/2015
 					Cambio realizado: Implementar visualización de información empleando el componente QueryTask()
@@ -267,6 +329,14 @@ $(document).ready(function()
 					Cambio realizado: Implementar el cargue de la información asociando	los campos del Query en la sección "Fields"
 					Fecha actualizado: 20/10/2015
 					Cambio realizado: Ajuste del cargue de la información al método queryArray()
+					Fecha actualizado: 21/10/2015
+					Cambio realizado: Visualización y optimización del cargue de InfoWindow por ejecución del QueryTask.
+					Fecha actualizado: 21/10/2015
+					Cambio realizado: Implementación de cargue de la ventana InfoWindow para varios Identify's.
+					Fecha actualizado: 21/10/2015
+					Cambio realizado: No visualizar en el InfoWindow la información del campo OBJECTID
+					Fecha actualizado: 22/10/2015
+					Cambio realizado: Implementar carga de información empleando las clases IdentifyTask e IdentifyParameters (https://developers.arcgis.com/javascript/jssamples/find_popup.html)
 					*/
 
 					//esri.hide(dojo.byId("carga"));
@@ -279,276 +349,15 @@ $(document).ready(function()
 					$(".viewRestore").click(function()
 					{
 						/*Fecha actualizado: 14/10/2015
-						Cambio realizado: Habilitar vinculo "Reestablecer a vista predeterminada".						
+						Cambio realizado: Habilitar vinculo "Reestablecer a vista predeterminada".
+						Fecha actualizado: 22/10/2015
+						Cambio realizado: Cuando se restaure la vista, borrar el contenido de la caja de búsqueda.
 						*/
 
 						var limites = new esri.geometry.Extent({"xmin":-9495735,"ymin":-83164,"xmax":-7186725,"ymax":1406441,"spatialReference":{"wkid":102100}});
 						mapMain.setExtent(limites);
+						$('#busqueda_input').val('');
 					});
-					
-					/*Creación del query para InfoWindow*/
-					//Paso 1.Obtener el identify del xml, basado en la información del atributo layer.
-					//En var identifyIds => array
-
-					//alert("Url para identify=>"+capaUrl+",numero identify:"+identifyIds.length);
-					//Evaluamos si se envía 1 identify
-					if (identifyIds.length == 1)
-					{
-						//Paso 2.Armamos la URL junto con el identify
-						var capaUrlQuery	=	capaUrl+"/"+identifyIds[0];	
-						//var capaUrlQuery	=	"http://sampleserver1.arcgisonline.com/ArcGIS/rest/services/Demographics/ESRI_Census_USA/MapServer/3";
-						//var flag 			=	0;
-						var flag 			=	1;
-						//Paso 3. Implementación del Parser para traer el JSON en el campo 'fields' a un arreglo
-						var itemsAlias,items 			=	[];
-												
-						
-						//Petición sincrónica
-						$.ajaxSetup({
-						    async: false
-						});
-						//Arreglo de los campos tipo alias para visualizarlos en le InfoWindow
-						itemsAlias 				=	queryArray(capaUrlQuery,flag,'alias');
-						//Arreglo de los campos Name para realizar la consulta
-						items					=	queryArray(capaUrlQuery,flag,'name');
-						/*alert("Arreglo Cantidad =>"+items.length);
-						for (cont=0; cont < items.length; ++cont)
-						{
-							alert("Campos Query =>"+items[cont]);
-						}*/
-						
-						
-						//Petición asincrónica
-						$.ajaxSetup({
-						    async: true
-						});							
-						
-						//Paso 3.Invocamos el servicio de Query Task
-						var queryTask 		=	new QueryTask(capaUrlQuery); 
-						
-						//Paso 4.Construcción del filtro para consulta
-						var query 			=	new Query();
-						query.returnGeometry=	true;
-						query.outFields		=	["*"];
-						query.outSpatialReference=
-			        	{
-			        		"wkid": 102100
-			        	};
-						//query.where			=	items[2]+" "+"LIKE"+" "+"'c%'";
-						query.where			=	items[0]+" "+"IS NOT NULL";
-						//alert("Clausula WHERE =>"+items[0]+" "+"IS NOT NULL");
-						
-						//Paso 5.Visualización de campos, junto con sus labels en InfoWindow							
-						//var infoTemplate 	=	new InfoTemplate("Attributes", "${*}");
-						var infoTemplate 	=	new InfoTemplate();
-						//Definición titulo, de acuerdo al paso 3
-						var title 			=	"${"+items[2]+"}";
-						var content 		=	"";
-						//Armado del content según arreglo creado en paso 3
-						for (cont = 0; cont < items.length; cont++)	
-						{
-							content += "<b>"+itemsAlias[cont]+":</b>"+"${"+items[cont]+"}<br>";								
-						}
-						//Renderizar título y contenido al InfoWindow 
-						infoTemplate.setTitle(title);
-						infoTemplate.setContent(content);
-
-						//Declaramos tamaño del infoWindow
-						mapMain.infoWindow.resize(245, 125);
-
-						
-						//Visualización al completar la creación del query
-						queryTask.on("complete", function (event)
-						{
-							alert("Titulo =>"+title+",Contenido =>"+content);							
-							mapMain.graphics.clear();								
-							//Resaltado de simbolos
-							var highlightSymbol = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
-								new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
-								new Color([255, 0, 0]), 3),
-								new Color([125, 125, 125, 0.35]));
-							//Simbolos
-							var symbol = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
-								 new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
-								 new Color([255, 255, 255, 0.35]), 1),
-								 new Color([125, 125, 125, 0.35]));
-						
-							var features = event.featureSet.features;
-			              	var countiesGraphicsLayer = new GraphicsLayer();
-			              	//QueryTask returns a featureSet.
-			              	//Loop through features in the featureSet and add them to the map.
-			              	var featureCount = features.length;				              	
-			              	for (var cont=0; cont < featureCount; cont++)
-			              	{
-			              		//Get the current feature from the featureSet.
-			              		//Feature is a graphic
-			              		var graphic = features[cont];
-			              		graphic.setSymbol(symbol);
-			              		graphic.setInfoTemplate(infoTemplate);
-			              		countiesGraphicsLayer.add(graphic);
-			              	}
-			              	//Desplegar en el mapa
-			              	mapMain.addLayer(countiesGraphicsLayer);
-			              	//Habilitar mouse con el fin de obtener la información cuando un evento se dispara
-			              	mapMain.graphics.enableMouseEvents();				              	
-			              	//Evento "Mouse-Over": Desplegar cuadro informativo al colocar el mouse en una zona del mapa
-			              	/*countiesGraphicsLayer.on("mouse-over",function (event)
-			              	{
-			              		//use the maps graphics layer as the highlight layer
-			              	 	mapMain.graphics.clear();
-			              	 	var graphic 		=	event.graphic;
-			              	 	//Establecer contenido
-			              	 	mapMain.infoWindow.setContent(graphic.getContent());
-			              	 	//Establecer información en la ventana correspondiente a cada punto en el mapa
-			              	 	mapMain.infoWindow.setTitle(graphic.getTitle());
-			              	 	//Resaltado del segmento al colocar el mouse sobre el mismo
-			              	 	var highlightGraphic=	new Graphic(graphic.geometry, highlightSymbol);
-			              	 	mapMain.graphics.add(highlightGraphic);
-			              	 	mapMain.infoWindow.show(event.screenPoint, map.getInfoWindowAnchor(event.screenPoint));
-			              	});*/
-			              	//listen for when map.graphics mouse-out event is fired
-			              	 //and then clear the highlight graphic
-			              	 //and hide the info window
-			              	 //Evento "mouse-out"	
-			              	 /*mapMain.graphics.on("mouse-out",function()
-			              	 {
-			              	 	mapMain.graphics.clear();
-              	 				mapMain.infoWindow.hide();
-			              	 });*/			              	 
-						});
-						queryTask.execute(query);
-					}
-					//Cuando son más de 1, los recorremos con una iteracción	
-					else
-					{
-						//Paso 2.Armamos la URL junto con el arreglo de identify's
-	for (recorreIdentify=0; recorreIdentify < identifyIds.length; ++recorreIdentify)
-	{	
-		var capaUrlQuery	=	capaUrl+"/"+identifyIds[recorreIdentify];	
-		//var capaUrlQuery	=	"http://sampleserver1.arcgisonline.com/ArcGIS/rest/services/Demographics/ESRI_Census_USA/MapServer/3";
-		//var flag 			=	0;
-		var flag 			=	1;
-		//Paso 3. Implementación del Parser para traer el JSON en el campo 'fields' a un arreglo
-		var itemsAlias,items =	[];
-								
-		
-		//Petición sincrónica
-		$.ajaxSetup({
-			async: false
-		});
-		//Arreglo de los campos tipo alias para visualizarlos en le InfoWindow
-		itemsAlias 				=	queryArray(capaUrlQuery,flag,'alias');
-		//Arreglo de los campos Name para realizar la consulta
-		items					=	queryArray(capaUrlQuery,flag,'name');
-		/*alert("Arreglo Cantidad =>"+items.length);
-		for (cont=0; cont < items.length; ++cont)
-		{
-			alert("Campos Query =>"+items[cont]);
-		}*/
-		
-		
-		//Petición asincrónica
-		$.ajaxSetup({
-			async: true
-		});							
-		
-		//Paso 4.Invocamos el servicio de Query Task
-		var queryTask 		=	new QueryTask(capaUrlQuery); 
-		
-		//Paso 5.Construcción del filtro para consulta
-		var query 			=	new Query();
-		query.returnGeometry=	true;
-		query.outFields		=	["*"];
-		query.outSpatialReference=
-		{
-			"wkid": 102100
-		};
-		//query.where			=	items[2]+" "+"LIKE"+" "+"'c%'";
-		query.where			=	items[0]+" "+"IS NOT NULL";
-		alert("Clausula WHERE =>"+items[0]+" "+"IS NOT NULL");
-		
-		//Paso 6.Visualización de campos, junto con sus labels en InfoWindow
-		//var infoTemplate 	=	new InfoTemplate("Attributes", "${*}");
-		var infoTemplate 	=	new InfoTemplate();
-		//Definición titulo, de acuerdo al paso 3
-		var title 			=	"${"+items[2]+"}";
-		var content 		=	"";
-		//Armado del content según arreglo creado en paso 3
-		for (cont = 0; cont < items.length; cont++)	
-		{
-			content += "<b>"+itemsAlias[cont]+":</b>"+"${"+items[cont]+"}<br>";								
-		}
-		//Renderizar título y contenido al InfoWindow 
-		infoTemplate.setTitle(title);
-		infoTemplate.setContent(content);
-
-		//Declaramos tamaño del infoWindow
-		mapMain.infoWindow.resize(245, 125);
-		
-		//Paso 7. Visualizar capas en el mapa después de la ejecución del query						
-		queryTask.on("complete", function (event)
-		{
-			alert("Titulo =>"+title+",Contenido =>"+content);							
-			mapMain.graphics.clear();								
-			//Resaltado de simbolos
-			var highlightSymbol = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
-				new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
-				new Color([255, 0, 0]), 3),
-				new Color([125, 125, 125, 0.35]));
-			//Simbolos
-			var symbol = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
-				 new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
-				 new Color([255, 255, 255, 0.35]), 1),
-				 new Color([125, 125, 125, 0.35]));
-		
-			var features = event.featureSet.features;
-			var countiesGraphicsLayer = new GraphicsLayer();
-			//QueryTask returns a featureSet.
-			//Loop through features in the featureSet and add them to the map.
-			var featureCount = features.length;				              	
-			for (var cont=0; cont < featureCount; cont++)
-			{
-				//Get the current feature from the featureSet.
-				//Feature is a graphic
-				var graphic = features[cont];
-				graphic.setSymbol(symbol);
-				graphic.setInfoTemplate(infoTemplate);
-				countiesGraphicsLayer.add(graphic);
-			}
-			//Desplegar en el mapa
-			mapMain.addLayer(countiesGraphicsLayer);
-			//Habilitar mouse con el fin de obtener la información cuando un evento se dispara
-			mapMain.graphics.enableMouseEvents();				              	
-			//Evento "Mouse-Over": Desplegar cuadro informativo
-			countiesGraphicsLayer.on("mouse-over",function (event)
-			{
-				//use the maps graphics layer as the highlight layer
-				map.graphics.clear();
-				var graphic 		=	event.graphic;
-				//Establecer contenido
-				map.infoWindow.setContent(graphic.getContent());
-				//Establecer información en la ventana correspondiente a cada punto en el mapa
-				map.infoWindow.setTitle(graphic.getTitle());
-				//Resaltado del segmento al colocar el mouse sobre el mismo
-				var highlightGraphic=	new Graphic(graphic.geometry, highlightSymbol);
-				map.graphics.add(highlightGraphic);
-				map.infoWindow.show(event.screenPoint, map.getInfoWindowAnchor(event.screenPoint));
-			});
-			//listen for when map.graphics mouse-out event is fired
-			 //and then clear the highlight graphic
-			 //and hide the info window
-			 //Evento "mouse-out"	
-			 mapMain.graphics.on("mouse-out",function()
-			 {
-				map.graphics.clear();
-				map.infoWindow.hide();
-			 });			              	 
-		});
-		queryTask.execute(query);
-	}
-					}
-					
-					//Finalizamos la ejecución del query
 				}
 
 				//Eventos de carga/descarga del mapa
@@ -851,10 +660,9 @@ $(document).ready(function()
 		mapMain.setExtent(limites);
 	}
 
-	function prepararMapa(map) {
-	
-		dojo.connect(map, "onClick", ejecutarIdentifyTarea);
-		
+	/*function prepararMapa(map) {
+		//dojo.connect(map, "onClick", ejecutarIdentifyTarea);
+		alert("Determinar mapa =>"+capaUrl);
 		identifyTask = new esri.tasks.IdentifyTask(capaUrl);
 		
 		identifyParametros = new esri.tasks.IdentifyParameters();
@@ -863,12 +671,18 @@ $(document).ready(function()
 		identifyParametros.layerIds = identifyIds;
         identifyParametros.width  = map.width;
         identifyParametros.height = map.height;
-	}
+	}*/
 
-	function ejecutarIdentifyTarea(evt) {
-
+	function ejecutarIdentifyTarea(evt) 
+	{
+		/*Fecha actualizado: 22/10/2015
+		Cambio realizado: Cambio "map" => "mapMain".
+		Fecha actualizado: 22/10/2015
+		Cambio realizado: Adición titulo al InfoWindow
+		*/
+		
         identifyParametros.geometry = evt.mapPoint;
-        identifyParametros.mapExtent = map.extent;
+        identifyParametros.mapExtent = mapMain.extent;
        
         var diferido = identifyTask.execute(identifyParametros);
 
@@ -876,7 +690,7 @@ $(document).ready(function()
           // Callback para consultar todos los features    
           return dojo.map(respuesta, function(resultado) {
             var feature = resultado.feature;
-			var cadenaInfo = "<b>" + resultado.layerName + "</b><br><br>";
+			var cadenaInfo = "<b>" + resultado.layerName + "</b><br><br>";			
 			// Guarda el array de todos los features identificados.
 			for(var atributo in feature.attributes) {
 				if(atributo != "OBJECTID" 
@@ -890,15 +704,18 @@ $(document).ready(function()
 				}
 			}
 			
-			var template = new esri.InfoTemplate("", cadenaInfo);
-			feature.setInfoTemplate(template);
-            
+			//var template = 	new InfoTemplate("", cadenaInfo);
+			var template = new esri.InfoTemplate();			
+			template.setTitle(resultado.layerName);
+			template.setContent(cadenaInfo);
+			feature.setInfoTemplate(template);            
             return feature;
-          });
+          });          
         });
         // Muestra el array de todos los features identificados.
-        map.infoWindow.setFeatures([ diferido ]);
-        map.infoWindow.show(evt.mapPoint);		
+       
+        mapMain.infoWindow.setFeatures([ diferido ]);
+        mapMain.infoWindow.show(evt.mapPoint);		
 	}
 
 	function buscaEnArray(arr, obj) {
@@ -1025,57 +842,4 @@ $(document).ready(function()
 	document.addEventListener("webkitfullscreenchange", function(e) {
 		efectosPantallaCompleta();
 	});
-
-	function queryArray(capaUrlQuery,flag,tField)
-	{
-		/*//Fecha creado: 19/10/2015
-		Propósito: Generar arreglo de parámetros para uso con la clase Query
-		Parámetros: 1.URL para procesar el query.2.Indicador para establecer tipo de dato a procesar en el servidor (null,json).3.Tipo de campo a recorrer en el arreglo (name, type, alias)
-		Fecha actualizado: 20/10/2015
-		Cambio realizado: Procesar petición de llamado a JSON empleando el metodo POST.
-		Fecha actualizado: 20/10/2015
-		Cambio realizado: Implementar el tipo de campo (name, alias)
-		Fecha actualizado: 20/10/2015
-		Cambio realizado: Cambio nombre método QueryArray => queryArray
-		Observaciones: Fuente => http://www.abeautifulsite.net/postjson-for-jquery/
-		
-		//Parametros: capaurlQuery => String; flag => Integer*/
-		var items		=	[];	
-		//var capaUrlQueryJson	=	capaUrlQuery+"?f=json";
-		if (flag == 0)
-		{
-			var capaUrlQueryJson	=	capaUrlQuery;	
-		}
-		if (flag == 1)
-		{
-			var capaUrlQueryJson	=	capaUrlQuery+"?f=pjson";		
-		}
-		//var capaUrlQueryJson 	=	capaUrlQuery;
-		//$.getJSON(capaUrlQueryJson,function(data)
-		$.post(capaUrlQueryJson,function(data)
-		{			
-			var recorr 		=	0;
-			var valores		=	'';
-			//campo: campos, field: contenido
-			$.each(data, function(campoJson, nombre)
-			{
-				if (campoJson == 'fields')
-				{								
-					//Iteramos sobre el numero de campos
-					var ncampos = campoJson.length - 1;									
-					for (cont = 0; cont < ncampos; cont++)
-					{	
-						//valores	=	nombre[cont]['alias'];
-						valores	=	nombre[cont][tField];
-						//Asignamos los campos para Query Map que no sean de tipo esriFieldTypeGeometry 
-						if (nombre[cont]['type'] != 'esriFieldTypeGeometry')
-						{
-							items.push(valores);
-						}										
-					}																		
-				}
-			});			
-		},'json');
-		return items;
-	}	
 });
