@@ -31,12 +31,14 @@ $(document).ready(function()
 	  	Cambio realizado: Cargue del archivo fuente XML del sitio geoportal.
 	  	Fecha actualizado: 20/10/2015
 	  	Cambio realizado: Cargue del archivo fuente XML desde Mapasige
+	  	Fecha actualizado: 23/10/2015
+		Cambio realizado: Actualización Path cargue archivo base XML
 	  	*/
 		//XML del servidor Local
 		//var xmlUrl	=	"datosGruposTematicos.xml";
 		//XML del servidor Nube (Contingencia)
 		//var xmlUrl	=	"datosGruposTematicosNube.xml";		
-		var xmlUrl		=	"datosGruposTematicosMapasige.xml";
+		var xmlUrl		=	"dataSrc/datosGruposTematicosMapasige.xml";
 		cargarOpcionesGrupo(getURLParam("c"),getURLParam("sc"),getURLParam("s"));
 		var servicio = getURLParam("s");		
 		var indicadores = new dojox.data.XmlStore({url: xmlUrl, rootItem: "servicio"});

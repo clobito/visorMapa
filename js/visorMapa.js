@@ -137,7 +137,10 @@ function setSubCat(categ)
 /*	Fecha actualizado: 15/10/2015
 Cambio realizado: Carga del archivo XML del portal Dane.
 Fecha actualizado: 19/10/2015
-Cambio realizado: Carga del archivo base XML del sitio MapaSige (Dane), versión final*/
+Cambio realizado: Carga del archivo base XML del sitio MapaSige (Dane), versión final.
+Fecha actualizado: 23/10/2015
+Cambio realizado: Actualización Path cargue archivo base XML
+*/
 //Declaraciones globales
 var todosGrupos = true;
 
@@ -145,7 +148,7 @@ var todosGrupos = true;
 //XML de la nube - Contingencia
 //var xmlUrl	=	"datosGruposTematicosNube.xml";
 //XML del portal Dane
-var xmlUrl	=	"datosGruposTematicosMapasige.xml";
+var xmlUrl	=	"dataSrc/datosGruposTematicosMapasige.xml";
 var noGrupo = getURLParam("indicador");
 
 if(noGrupo != "" && !isNaN(noGrupo)){

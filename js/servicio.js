@@ -31,9 +31,11 @@ $(document).ready(function()
 	Cambio realizado: Establecer variable para obtener el XML Source como global. Se desactiva del método init()
 	Fecha actualizado: 19/10/2015
 	Cambio realizado: Establecer fuente XML desde el servidor DANE
+	Fecha actualizado: 23/10/2015
+	Cambio realizado: Actualización Path cargue archivo base XML
 	*/
 	//var xmlUrl	=	"datosGruposTematicosNube.xml";
-	var xmlUrl		=	"datosGruposTematicosMapasige.xml";
+	var xmlUrl		=	"dataSrc/datosGruposTematicosMapasige.xml";
 	dojo.ready(init);
 	
 	function init() {

@@ -41,23 +41,26 @@ Ejemplo general
 
 <categorias>
 
-	<grupo value="ContextoCG2005" name="Contexto General">
-	
-	<categoria value="Perfil" name="Indicadores Perfil Censo General 2005">
-	    <servicio id="Perfil_1" title="Perfil Censo General 2005, según departamento y municipio" image="" legend="6" identify="2,3,5,6,7" metadata="https://www.dane.gov.co/files/investigaciones/fichas/Censo_2005.pdf" layer="https://geoportal.dane.gov.co/arcgis/rest/services/INDICADORES_CTERRITORIO/Cache_DeptosMpiosPerfilCensoGralMDEDP_2005/MapServer" table="https://www.dane.gov.co/censo/files/cuadros%20censo%202005.xls"/>
-	    <servicio id="Perfil_2" title="Cobertura Censo General 2005, según municipio" image="" legend="4" identify="4" metadata="https://www.dane.gov.co/files/investigaciones/fichas/Censo_2005.pdf" layer="https://geoportal.dane.gov.co/arcgis/rest/services/INDICADORES_CTERRITORIO/Cache_MpiosCoberturaCensal_2005/MapServer" table="https://190.25.231.242/redatam/CG2005/Total_poblacion_conciliada_mpal.xls"/>
-	    <servicio id="Perfil_3" title="Jerarquía urbana, según cabeceras municipales 2005" image="" legend="1,2,3,4,5,6,7,8" identify="7,8,9,10,11,12,13,14,15,16" metadata="https://www.dane.gov.co/files/investigaciones/fichas/Censo_2005.pdf" layer="https://geoportal.dane.gov.co/arcgis/rest/services/INDICADORES_CTERRITORIO/Cache_MpiosCTJerarquiaUrbanaColombia_2005/MapServer" table="https://190.25.231.242/redatam/CG2005/Total_poblacion_conciliada_mpal.xls"/>
-	</categoria>
-	
-	<categoria value="Contexto_territorio" name="Contexto del territorio">
-		<servicio id="Contexto_territorio_1" title="Participación del área de los resguardos indígenas, respecto al total municipal. 2010" image="" legend="5" identify="5" metadata="https://www.dane.gov.co/files/censo2005/etnia/sys/visibilidad_estadistica_etnicos.pdf" layer="https://geoportal.dane.gov.co/arcgis/rest/services/INDICADORES_CTERRITORIO/Cache_MpiosCTPorcResguardosIndigenas/MapServer" table="http://190.25.231.242/redatam/CG2005/Total_poblacion_conciliada_mpal.xls"/>
-        <servicio id="Contexto_territorio_2" title="Participación del área de los territorios colectivos de comunidades negras, respecto al total municipal. 2010" image="" legend="5" identify="5" metadata="https://www.dane.gov.co/files/censo2005/etnia/sys/visibilidad_estadistica_etnicos.pdf" layer="https://geoportal.dane.gov.co/arcgis/rest/services/INDICADORES_CTERRITORIO/Cache_MpiosCTPorcTerritoriosAfrocolombianos_2010/MapServer" table="http://190.25.231.242/redatam/CG2005/Total_poblacion_conciliada_mpal.xls"/>
-	    <servicio id="Contexto_territorio_3" title="Municipios y áreas no municipalizadas (corregimientos departamentales), según fecha de creación 2012" image="" legend="4" identify="4" metadata="https://www.dane.gov.co/files/investigaciones/fichas/Censo_2005.pdf" layer="https://geoportal.dane.gov.co/arcgis/rest/services/INDICADORES_CTERRITORIO/Cache_MpiosCTFechaCreacion_2012/MapServer" table="https://190.25.231.242/redatam/CG2005/Total_poblacion_conciliada_mpal.xls"/>
-	    <servicio id="Contexto_territorio_4" title="Departamentos y municipios de Colombia 2012" image="" legend="1,2,3,4,5" identify="1,2,3,4,5,6" metadata="https://www.dane.gov.co/files/investigaciones/fichas/Censo_2005.pdf" layer="https://geoportal.dane.gov.co/arcgis/rest/services/INDICADORES_CTERRITORIO/Cache_MpiosCTDeptosAM_DivisionPolitica_2012/MapServer" table="https://www.dane.gov.co/files/investigaciones/poblacion/proyepobla06_20/Municipal_area_1985-2020.xls"/>
-	    <servicio id="Contexto_territorio_5" title="Municipios de Colombia, según extensión censal 2012" image="" legend="4" identify="4" metadata="https://www.dane.gov.co/files/investigaciones/fichas/Censo_2005.pdf" layer="https://geoportal.dane.gov.co/arcgis/rest/services/INDICADORES_CTERRITORIO/Cache_MpiosCTSuperficie_2012/MapServer" table="documents/CT_AreaCensalMunicipios_2012.xls"/>
-	</categoria>
-	
-	</grupo >
+	<grupo value="ContextoCG2005" name="Contexto General">	
+		<categoria value="Perfil" name="Indicadores Perfil Censo General 2005">
+		    <servicio id="Perfil_1" title="Perfil Censo General 2005, según departamento y municipio" image="" legend="6" identify="2,3,5,6,7" metadata="https://www.dane.gov.co/files/investigaciones/fichas/Censo_2005.pdf" layer="https://geoportal.dane.gov.co/arcgis/rest/services/INDICADORES_CTERRITORIO/Cache_DeptosMpiosPerfilCensoGralMDEDP_2005/MapServer" table="https://www.dane.gov.co/censo/files/cuadros%20censo%202005.xls"/>
+		    <servicio id="Perfil_2" title="Cobertura Censo General 2005, según municipio" image="" legend="4" identify="4" metadata="https://www.dane.gov.co/files/investigaciones/fichas/Censo_2005.pdf" layer="https://geoportal.dane.gov.co/arcgis/rest/services/INDICADORES_CTERRITORIO/Cache_MpiosCoberturaCensal_2005/MapServer" table="https://190.25.231.242/redatam/CG2005/Total_poblacion_conciliada_mpal.xls"/>
+		    <servicio id="Perfil_3" title="Jerarquía urbana, según cabeceras municipales 2005" image="" legend="1,2,3,4,5,6,7,8" identify="7,8,9,10,11,12,13,14,15,16" metadata="https://www.dane.gov.co/files/investigaciones/fichas/Censo_2005.pdf" layer="https://geoportal.dane.gov.co/arcgis/rest/services/INDICADORES_CTERRITORIO/Cache_MpiosCTJerarquiaUrbanaColombia_2005/MapServer" table="https://190.25.231.242/redatam/CG2005/Total_poblacion_conciliada_mpal.xls"/>
+		</categoria>
+		
+		<categoria value="Contexto_territorio" name="Contexto del territorio">
+			<servicio id="Contexto_territorio_1" title="Participación del área de los resguardos indígenas, respecto al total municipal. 2010" image="" legend="5" identify="5" metadata="https://www.dane.gov.co/files/censo2005/etnia/sys/visibilidad_estadistica_etnicos.pdf" layer="https://geoportal.dane.gov.co/arcgis/rest/services/INDICADORES_CTERRITORIO/Cache_MpiosCTPorcResguardosIndigenas/MapServer" table="http://190.25.231.242/redatam/CG2005/Total_poblacion_conciliada_mpal.xls"/>
+	        <servicio id="Contexto_territorio_2" title="Participación del área de los territorios colectivos de comunidades negras, respecto al total municipal. 2010" image="" legend="5" identify="5" metadata="https://www.dane.gov.co/files/censo2005/etnia/sys/visibilidad_estadistica_etnicos.pdf" layer="https://geoportal.dane.gov.co/arcgis/rest/services/INDICADORES_CTERRITORIO/Cache_MpiosCTPorcTerritoriosAfrocolombianos_2010/MapServer" table="http://190.25.231.242/redatam/CG2005/Total_poblacion_conciliada_mpal.xls"/>
+		    <servicio id="Contexto_territorio_3" title="Municipios y áreas no municipalizadas (corregimientos departamentales), según fecha de creación 2012" image="" legend="4" identify="4" metadata="https://www.dane.gov.co/files/investigaciones/fichas/Censo_2005.pdf" layer="https://geoportal.dane.gov.co/arcgis/rest/services/INDICADORES_CTERRITORIO/Cache_MpiosCTFechaCreacion_2012/MapServer" table="https://190.25.231.242/redatam/CG2005/Total_poblacion_conciliada_mpal.xls"/>
+		    <servicio id="Contexto_territorio_4" title="Departamentos y municipios de Colombia 2012" image="" legend="1,2,3,4,5" identify="1,2,3,4,5,6" metadata="https://www.dane.gov.co/files/investigaciones/fichas/Censo_2005.pdf" layer="https://geoportal.dane.gov.co/arcgis/rest/services/INDICADORES_CTERRITORIO/Cache_MpiosCTDeptosAM_DivisionPolitica_2012/MapServer" table="https://www.dane.gov.co/files/investigaciones/poblacion/proyepobla06_20/Municipal_area_1985-2020.xls"/>
+		    <servicio id="Contexto_territorio_5" title="Municipios de Colombia, según extensión censal 2012" image="" legend="4" identify="4" metadata="https://www.dane.gov.co/files/investigaciones/fichas/Censo_2005.pdf" layer="https://geoportal.dane.gov.co/arcgis/rest/services/INDICADORES_CTERRITORIO/Cache_MpiosCTSuperficie_2012/MapServer" table="documents/CT_AreaCensalMunicipios_2012.xls"/>
+		</categoria>
+		<!-- Etiqueta de prueba - 02/10/2015-->
+		<categoria value="Contexto_Departamento" name="Contexto del Departamento">
+			<servicio id="Contexto_Departamento_1" title="Deptos de prueba">
+			</servicio>
+		</categoria>
+	</grupo>
 	
 	<grupo value="CuentasNacionales" name="Cuentas nacionales">
 	<categoria value="CuentasDepartamentales" name="Cuentas departamentales 2010">
