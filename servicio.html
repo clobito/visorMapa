@@ -253,7 +253,10 @@ Cambio realizado: Inserción capa para carga de las redes sociales-->
 		</style> 
 		<!-- Inclusión bibliotecas JavaScript -->
 		<script src="js/jquery-1.7.2.min.js"></script><!--libreria llamada-->
-		<script>var dojoConfig = { parseOnLoad: true };</script> 
+		<script>
+			var dojoConfig = { parseOnLoad: true };
+			$('#Menu_combo_Container').hide();			
+		</script> 
 		<!-- API ArcGis 3.14-->
 		<!--<script src="https://serverapi.arcgisonline.com/jsapi/arcgis/3.4/"></script> -->
 		<script type="text/javascript" src="js/vendor/init.js"></script>
@@ -339,7 +342,7 @@ Cambio realizado: Inserción capa para carga de las redes sociales-->
 	<body style="position: relative;">	
 		<div id="content" data-dojo-type="dijit.layout.BorderContainer" data-dojo-props="design:'headline', gutters:false" style="width: 100%; height: 100%; margin: 0;"> 
 			<div id="Iframe_Map">		
-				<div id="Menu_combo_Container">
+				<div id="Menu_combo_Container" style="display:none">
 					<div id="Combo_Content">
 						<table>
 							<tr class="heightTR">

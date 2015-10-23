@@ -5,6 +5,9 @@ Fecha creado: 14/10/2015
 */
 $(document).ready(function()
 {
+	/*Fecha actualizado: 23/10/2015
+	Cambio realizado: Satisfacer requerimiento "Quitar controles fantasma cuando carga el mapa"*/
+
 	dojo.require("dijit.layout.BorderContainer");
 	dojo.require("dijit.layout.ContentPane");
 	dojo.require("dijit.layout.AccordionContainer");
@@ -17,6 +20,8 @@ $(document).ready(function()
 	dojo.require("dijit.form.CheckBox");
 	dojo.require("dojo.html");
 	dojo.require("dojox.data.XmlStore");
+	//Mantenimiento a la vista servicio.html 
+	$('#Menu_combo_Container').hide();	
 
 	//Variable global para la leyenda
 	var tituloLeyenda;		
@@ -33,24 +38,39 @@ $(document).ready(function()
 	Cambio realizado: Establecer fuente XML desde el servidor DANE
 	Fecha actualizado: 23/10/2015
 	Cambio realizado: Actualización Path cargue archivo base XML
+	Fecha actualizado: 23/10/2015
+	Cambio realizado: Satisfacer requerimiento "Quitar controles fantasma cuando carga el mapa"
 	*/
 	//var xmlUrl	=	"datosGruposTematicosNube.xml";
 	var xmlUrl		=	"dataSrc/datosGruposTematicosMapasige.xml";
-	dojo.ready(init);
+	
 	
 	function init() {
 	  /*Fecha actualizado: 13/10/2015
 	  Cambio realizado: Actualización del archivo fuente XML por contingencia
 	  Fecha actualizado: 15/10/2015
 	  Cambio realizado: Cargue del archivo fuente XML del sitio geoportal.
-	  Fecha actualizado: 16/10/2015
-	  Cambio realizado: Procesamiento del atributo identify. Cuando es único, se trae en un arrreglo en la posición 0; de lo contrario, se procesan en un arreglo quedando en varias posiciones.
+	  Fecha actualizado: 16/10/2015	  
+	  Cambio realizado: Procesamiento del atributo identify. Cuando es único, se trae en un arreglo en la posición 0; de lo contrario, se procesan en un arreglo quedando en varias posiciones.
+	  Fecha actualizado: 23/10/2015
+	  Cambio realizado: Satisfacer requerimiento "Quitar controles fantasma cuando carga el mapa"
 	  Observaciones: Fuente: http://www.w3schools.com/jsref/jsref_split.asp 
 	  */
 	  	//var xmlUrl	=	"datosGruposTematicos.xml";
 	  	//var xmlUrl	=	"datosGruposTematicosNube.xml";
 	  	//var xmlUrl		=	"datosGruposTematicosMapasige.xml";
 		var servicio 	= 	getURLParam("s");
+
+		with ($('#carga'))
+		{
+			attr('style','width:100%; height:450px; background-color:#EBFFFF; text-align: center; vertical-align: middle;')
+			html('<img src="img/loading.gif" width="400" height="400"/>');			
+		}
+		//Ocultar las ventanas del mapa, incluyendo Geocoder hasta no haberse cargado
+		$('#marco-mov').attr("style","display:none");
+		$('#ventana-mov').attr("style","display:none");	
+		$('#busqueda').hide();
+		$('#gp_logo').hide();
 		
 		var indicadores = new dojox.data.XmlStore({url: xmlUrl, rootItem: "servicio"});		
 
@@ -117,6 +137,19 @@ $(document).ready(function()
 		var request = indicadores.fetch({onComplete: obtieneIndicador, query: {"@id":servicio}, queryOptions: {ignoreCase: true} });
 		
     }
+    dojo.ready(init);
+    //Mantenimiento a la vista servicio.html    
+    with ($('#carga'))
+	{
+		attr('style','width:100%; height:450px; background-color:#EBFFFF; text-align: center; vertical-align: middle;')
+		html('<img src="img/loading.gif" width="400" height="400"/>');
+	}
+	//Ocultar las ventanas del mapa, incluyendo Geocoder hasta no haberse cargado
+	$('#marco-mov').attr("style","display:none");
+	$('#ventana-mov').attr("style","display:none");	
+	$('#busqueda').hide();
+	$('#gp_logo').hide();
+
     function configuraIndicador(){
 		/*Fecha actualizado: 15/10/2015.
 		Cambio realizado: Ocultar botón Maximizar Indicador
@@ -269,7 +302,7 @@ $(document).ready(function()
 					},
 					map: mapMain
 				},"busqueda");
-
+				$('#busqueda').hide();
 				//Inicia el Buscador
 				geoCoder.startup();
 
@@ -290,12 +323,19 @@ $(document).ready(function()
 					Cambio realizado: Implementar la carga del InfoWindow para ejecutar carga de información de acuerdo al mapa y sus Identify's, al dar click sobre la región del mapa
 					Fecha actualizado: 22/10/2015
 					Cambio realizado: Cambio de parámetro "mapEvents" => "event"
+					Fecha actualizado: 23/10/2015
+					Cambio realizado: Ocultar la capa del mapa hasta que no se haya terminado de cargar
 					*/
 					/*esri.hide($('#icono_amp'));
 					esri.hide($('#excel'));*/
 					$('#icono_amp').attr('style','visibility:visible');					
 					prepararMapa();
-					mapMain.on("click",ejecutarIdentifyTarea);					
+					iniciarRedesSociales(titulo, capas);
+					mapMain.on("click",ejecutarIdentifyTarea);
+					$('#map').show();
+					$('#busqueda').show();
+					$('#ventana-mov').attr("style","display:block");					
+					$('#marco-mov').attr("style","display:block");					
 				}
 
 				function prepararMapa() 

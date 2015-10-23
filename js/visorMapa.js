@@ -17,8 +17,8 @@ function mostrarToolTip(title, e)
 
 function cargaIFrame(url) 
 {
-	$("#ampliarservicio").attr("href", url.replace("servicio.html","servicioMax.html") + "&fullscreen=true&c="+$("#grupo").val()+"&sc="+$("#categ").val());
-	$("#mapaservicio").attr("src", url);
+	$("#ampliarservicio").attr("href", url.replace("servicio.html","servicioMax.html") + "&fullscreen=true&c="+$("#grupo").val()+"&sc="+$("#categ").val());	
+	$("#mapaservicio").attr("src", url);	
 }
 
 function getRandomInt(min, max) 
@@ -205,8 +205,11 @@ $(window).resize(function()
 $(document).ready(function()
 {
 	/*Fecha actualizado: 15/10/2015
-	Cambio realizado: Ocultar controles Maximizar y descarga Hoja de calculo al inicio de la petición*/
+	Cambio realizado: Ocultar controles Maximizar y descarga Hoja de calculo al inicio de la petición
+	*/
 
+	//$('#Menu_combo_Container').hide();
+	
 	var altodev = $(window).height();							
 	$("#icono_amp").css('top',altodev-90);
 	$("#Iframe_Map").css('height',altodev);
@@ -236,7 +239,7 @@ $(document).ready(function()
 	$("#grupo").linkselect({style:"indicador"});
 	$("#categ").linkselect({style:"indicador"});
 	$("#subcateg").linkselect();
-		
+	//alert("Carga archivo primario");
 	$.get(xmlUrl, function(xml) {					
 		var optionsCat = [];
 		var cat;
@@ -250,7 +253,7 @@ $(document).ready(function()
 		} else{
 			noGrupo = getRandomInt(0, $(xml).find("grupo").size()-1);
 		}
-							
+								
 		var optionsGrupo = [];
 		
 		$(xml).find("grupo").each( function(index) {
@@ -258,15 +261,16 @@ $(document).ready(function()
 				var name = $(this).attr("name");
 				var value = $(this).attr("value");
 				if(index == noGrupo){								
-					$("#grupo").val(value);
+					$("#grupo").val(value);					
 					cat = value;
 					seleccionado = true;
 				} else {
 					seleccionado = false;
-				}
+				}				
 				optionsGrupo.push({value: value, text: name, selected: seleccionado});
 			}
 		});
+		
 		$("#grupo").linkselect("replaceOptions", optionsGrupo);
 		
 		//Ocultar controles al inicio de la petición
@@ -307,5 +311,6 @@ $(document).ready(function()
 		});
 		$("#categ").linkselect("replaceOptions", optionsCat);
 		*/
+
 	});
 });
