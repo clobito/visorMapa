@@ -1,6 +1,8 @@
 /*
 Propósito: Implementación del componente JavaScript en archivo externo para la vista servicioMax.html
 Fecha creado: 15/10/2015
+Fecha actualizado: 28/10/2015
+Cambio realizado: Aplicación requerimientos realizados a los componentes del mapa en vista normal
 */
 $(document).ready(function()
 {	
@@ -17,12 +19,18 @@ $(document).ready(function()
 	dojo.require("dojo.html");
 	dojo.require("dojox.data.XmlStore");
 
+	//Mantenimiento a la vista servicioMax.html 
+	$('#Menu_combo_Container').hide();	
+	
+	/*Fecha actualizado: 28/10/2015
+	Cambio realizado: Actualización Path cargue archivo base XML*/
+
 	//Variable global para la leyenda
 	var tituloLeyenda;
 
+	var xmlUrl		=	"dataSrc/datosGruposTematicosMapasige.xml";
+
 	var map, identifyTarea, identifyParametros, imagen = "", capaUrl = "", contenido = "", metadata = "", fs = false, leyendaCapas = [], infoCapas = [], ocultaCapas = [], leyendaIds = [], identifyIds = [];
-	
-	dojo.ready(init);
 	
 	function init() {
     	/*Fecha actualizado: 14/10/2015
@@ -33,14 +41,27 @@ $(document).ready(function()
 	  	Cambio realizado: Cargue del archivo fuente XML desde Mapasige
 	  	Fecha actualizado: 23/10/2015
 		Cambio realizado: Actualización Path cargue archivo base XML
-	  	*/
+		Fecha actualizado: 28/10/2015
+		Cambio realizado: Desactivación variable xmlUrl por ser global
+			  	*/
 		//XML del servidor Local
 		//var xmlUrl	=	"datosGruposTematicos.xml";
 		//XML del servidor Nube (Contingencia)
 		//var xmlUrl	=	"datosGruposTematicosNube.xml";		
-		var xmlUrl		=	"dataSrc/datosGruposTematicosMapasige.xml";
+		//var xmlUrl		=	"dataSrc/datosGruposTematicosMapasige.xml";
 		cargarOpcionesGrupo(getURLParam("c"),getURLParam("sc"),getURLParam("s"));
-		var servicio = getURLParam("s");		
+		var servicio = getURLParam("s");
+
+		with ($('#carga'))
+		{
+			attr('style','width:100%; height:450px; background-color:#EBFFFF; text-align: center; vertical-align: middle;')
+			html('<img src="img/loading.gif" width="400" height="400"/>');			
+		}
+		//Ocultar las ventanas del mapa, incluyendo Geocoder hasta no haberse cargado
+		$('#marco-mov').attr("style","display:none");
+		$('#ventana-mov').attr("style","display:none");	
+		$('#busqueda').hide();
+		$('#gp_logo').hide();		
 		var indicadores = new dojox.data.XmlStore({url: xmlUrl, rootItem: "servicio"});
 
 		var obtieneIndicador = function(items, request){
@@ -93,13 +114,26 @@ $(document).ready(function()
 		}
 		
 		var request = indicadores.fetch({onComplete: obtieneIndicador, query: {"@id":servicio}, queryOptions: {ignoreCase: true} });
-		
     }
+    dojo.ready(init);
+    //Mantenimiento a la vista servicio.html    
+    with ($('#carga'))
+	{
+		attr('style','width:100%; height:450px; background-color:#EBFFFF; text-align: center; vertical-align: middle;')
+		html('<img src="img/loading.gif" width="400" height="400"/>');
+	}
+	//Ocultar las ventanas del mapa, incluyendo Geocoder hasta no haberse cargado
+	$('#marco-mov').attr("style","display:none");
+	$('#ventana-mov').attr("style","display:none");	
+	$('#busqueda').hide();
+	$('#gp_logo').hide();
 
 
 	function cargarOpcionesGrupo(grupo,categoria,indicador)
 	{
-		$.get("datosGruposTematicos.xml", function(xml) 
+		/*Fecha actualizado: 28/10/2015
+		Cambio realizado: Colocar archivo base XML como variable definida.*/
+		$.get(xmlUrl, function(xml) 
 		{
 			var optionsGrupo = [];
 			$("#grupo").append("<option value='0'>Seleccione</option>");
@@ -119,7 +153,10 @@ $(document).ready(function()
 
 	function buscarSubCategoria(grupo,categoria,indicador)
 	{
-		$.get("datosGruposTematicos.xml", function(xml) {
+		/*Fecha actualizado: 28/10/2015
+		Cambio realizado: Colocar archivo base XML como variable definida.*/
+
+		$.get(xmlUrl, function(xml) {
 			$("#categ").empty();
 			$("#categ").append("<option value='0'>Seleccione</option>");
 			$(xml).find("grupo[value='" + grupo + "']").each( function() 
@@ -141,7 +178,10 @@ $(document).ready(function()
 	
 	function setSubCat(categ,indicador)
 	{
-		$.get("datosGruposTematicos.xml", function(xml) {
+		/*Fecha actualizado: 28/10/2015
+		Cambio realizado: Colocar archivo base XML como variable definida.*/
+
+		$.get(xmlUrl, function(xml) {
 			$("#subcateg").empty();
 			$("#subcateg").append("<option value='0'>Seleccione</option>");
 			$(xml).find("categoria[value='" + categ + "']").each( function() 
@@ -205,6 +245,8 @@ $(document).ready(function()
 	Cambio realizado: Inclusión de los módulos layers/ArcGISDynamicMapServiceLayer, dijit/Popup, [dojo/_base/array, dojo/dom-construct (módulos del dojo framework)]
 	Fecha actualizado: 22/10/2015
 	Cambio realizado: Fix del Geocoder en ArcGIS 3.14
+	Fecha actualizado: 28/10/2015
+	Cambio realizado: Carga del mapa base, de acuerdo al requerimiento "Cambio Mapa Base en tonos grises"
 	*/	
 		tituloLeyenda = titulo;
         //var mapMain;
@@ -221,6 +263,8 @@ $(document).ready(function()
 		var title,content 	=	'';
 		//Arrays para procesar la carga de campos ejecutando QueryTask.
 		var itemsAlias,items=	[];
+		//URL base para carga de la capa "Outlined"
+		var capaOutlined	=	"http://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer";
         require([
 	        "esri/map",
 	        "esri/layers/ArcGISTiledMapServiceLayer",
@@ -267,6 +311,10 @@ $(document).ready(function()
         			infoWindow: popUp
         		});
 
+        		//Carga del mapa base
+        		var capaBase	=	new ArcGISTiledMapServiceLayer(capaOutlined);
+        		//Adición de la capa al mapa
+        		mapMain.addLayer(capaBase);
         		//Carga de la capa en la nueva libreria
         		var capa = new ArcGISTiledMapServiceLayer(capaUrl);
         		//Adición de la capa al mapa
@@ -309,6 +357,7 @@ $(document).ready(function()
 					},
 					map: mapMain
 				},"busqueda");
+				$('#busqueda').hide();
 
 				//Inicia el Buscador
 				geoCoder.startup();
@@ -330,12 +379,21 @@ $(document).ready(function()
 					Cambio realizado: Implementar la carga del InfoWindow para ejecutar carga de información de acuerdo al mapa y sus Identify's, al dar click sobre la región del mapa
 					Fecha actualizado: 22/10/2015
 					Cambio realizado: Cambio de parámetro "mapEvents" => "event"
+					Fecha actualizado: 23/10/2015
+					Cambio realizado: Ocultar la capa del mapa hasta que no se haya terminado de cargar
+					Fecha actualizado: 28/10/2015
+					Cambio realizado: Dar atención al requerimiento "Probar si es posible desplegar el Identify cuando el mouse se coloca sobre el elemento geográfico. Actualmente se despliega cuando se hace click con el mouse. Cuando se sale de la región, ocultar el InfoWindow".
 					*/
 					/*esri.hide($('#icono_amp'));
 					esri.hide($('#excel'));*/
 					$('#icono_amp').attr('style','visibility:visible');					
 					prepararMapa();
-					mapMain.on("click",ejecutarIdentifyTarea);					
+					mapMain.on("click",ejecutarIdentifyTarea);	
+					$('#map').show();
+					$('#busqueda').show();
+					$('#ventana-mov').attr("style","display:block");					
+					$('#marco-mov').attr("style","display:block");
+					$('#Menu_combo_Container').show();					
 				}
 
 				function prepararMapa() 
@@ -379,11 +437,19 @@ $(document).ready(function()
 					Cambio realizado: No visualizar en el InfoWindow la información del campo OBJECTID
 					Fecha actualizado: 22/10/2015
 					Cambio realizado: Implementar carga de información empleando las clases IdentifyTask y IdentifyParameters (https://developers.arcgis.com/javascript/jssamples/find_popup.html)
+					Fecha actualizado: 28/10/2015
+					Cambio realizado: Dar atención al requerimiento "Probar si es posible desplegar el Identify cuando el mouse se coloca sobre el elemento geográfico. Actualmente se despliega cuando se hace click con el mouse. Cuando se sale de la región, ocultar el InfoWindow".
 					*/
 
 					//esri.hide(dojo.byId("carga"));
 					$("#excel").html(contenido);
 					iniciarRedesSociales(titulo, capas);
+					mapMain.on("mouse-over",ejecutarIdentifyTarea);
+					mapMain.on("mouse-out",function()
+					{						
+						mapMain.graphics.clear();
+						mapMain.infoWindow.hide();
+					});
 					
 					//esri.show(dojo.byId("excel"));
 					/*esri.show($("#excel"));

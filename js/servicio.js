@@ -6,7 +6,10 @@ Fecha creado: 14/10/2015
 $(document).ready(function()
 {
 	/*Fecha actualizado: 23/10/2015
-	Cambio realizado: Satisfacer requerimiento "Quitar controles fantasma cuando carga el mapa"*/
+	Cambio realizado: Satisfacer requerimiento "Quitar controles fantasma cuando carga el mapa"
+	Fecha actualizado: 28/10/2015
+	Cambio realizado: Suprimir icono de maximizado.
+	*/
 
 	dojo.require("dijit.layout.BorderContainer");
 	dojo.require("dijit.layout.ContentPane");
@@ -23,6 +26,8 @@ $(document).ready(function()
 	//Mantenimiento a la vista servicio.html 
 	$('#Menu_combo_Container').hide();	
 
+	$('#icono_fs').attr('style','display:none');
+
 	//Variable global para la leyenda
 	var tituloLeyenda;		
 
@@ -38,8 +43,6 @@ $(document).ready(function()
 	Cambio realizado: Establecer fuente XML desde el servidor DANE
 	Fecha actualizado: 23/10/2015
 	Cambio realizado: Actualización Path cargue archivo base XML
-	Fecha actualizado: 23/10/2015
-	Cambio realizado: Satisfacer requerimiento "Quitar controles fantasma cuando carga el mapa"
 	*/
 	//var xmlUrl	=	"datosGruposTematicosNube.xml";
 	var xmlUrl		=	"dataSrc/datosGruposTematicosMapasige.xml";
@@ -50,10 +53,8 @@ $(document).ready(function()
 	  Cambio realizado: Actualización del archivo fuente XML por contingencia
 	  Fecha actualizado: 15/10/2015
 	  Cambio realizado: Cargue del archivo fuente XML del sitio geoportal.
-	  Fecha actualizado: 16/10/2015	  
-	  Cambio realizado: Procesamiento del atributo identify. Cuando es único, se trae en un arreglo en la posición 0; de lo contrario, se procesan en un arreglo quedando en varias posiciones.
-	  Fecha actualizado: 23/10/2015
-	  Cambio realizado: Satisfacer requerimiento "Quitar controles fantasma cuando carga el mapa"
+	  Fecha actualizado: 16/10/2015
+	  Cambio realizado: Procesamiento del atributo identify. Cuando es único, se trae en un arrreglo en la posición 0; de lo contrario, se procesan en un arreglo quedando en varias posiciones.
 	  Observaciones: Fuente: http://www.w3schools.com/jsref/jsref_split.asp 
 	  */
 	  	//var xmlUrl	=	"datosGruposTematicos.xml";
@@ -198,6 +199,8 @@ $(document).ready(function()
 		Cambio realizado: Inclusión de los módulos layers/ArcGISDynamicMapServiceLayer, dijit/Popup, [dojo/_base/array, dojo/dom-construct (módulos del dojo framework)]
 		Fecha actualizado: 22/10/2015
 		Cambio realizado: Fix del Geocoder en ArcGIS 3.14
+		Fecha actualizado: 26/10/2015
+		Cambio realizado: Carga del mapa base, de acuerdo al requerimiento "Cambio Mapa Base en tonos grises"
 		*/	
 		tituloLeyenda = titulo;
         //var mapMain;
@@ -214,6 +217,8 @@ $(document).ready(function()
 		var title,content 	=	'';
 		//Arrays para procesar la carga de campos ejecutando QueryTask.
 		var itemsAlias,items=	[];
+		//URL base para carga de la capa "Outlined"
+		var capaOutlined	=	"http://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer";
         require([
 	        "esri/map",
 	        "esri/layers/ArcGISTiledMapServiceLayer",
@@ -260,8 +265,12 @@ $(document).ready(function()
         			infoWindow: popUp
         		});
 
+        		//Carga del mapa base
+        		var capaBase	=	new ArcGISTiledMapServiceLayer(capaOutlined);
+        		//Adición de la capa al mapa
+        		mapMain.addLayer(capaBase);
         		//Carga de la capa en la nueva libreria
-        		var capa = new ArcGISTiledMapServiceLayer(capaUrl);
+        		var capa 		=	new ArcGISTiledMapServiceLayer(capaUrl);
         		//Adición de la capa al mapa
         		mapMain.addLayer(capa);
 
@@ -303,6 +312,7 @@ $(document).ready(function()
 					map: mapMain
 				},"busqueda");
 				$('#busqueda').hide();
+
 				//Inicia el Buscador
 				geoCoder.startup();
 
@@ -325,13 +335,16 @@ $(document).ready(function()
 					Cambio realizado: Cambio de parámetro "mapEvents" => "event"
 					Fecha actualizado: 23/10/2015
 					Cambio realizado: Ocultar la capa del mapa hasta que no se haya terminado de cargar
+					Fecha actualizado: 26/10/2015
+					Cambio realizado: Dar atención al requerimiento "Probar si es posible desplegar el Identify cuando el mouse se coloca sobre el elemento geográfico. Actualmente se despliega cuando se hace click con el mouse. Cuando se sale de la región, ocultar el InfoWindow".
+					Observaciones: EL despliegue de la información funciona al colocar el mouse sobre la ventana InfoWindow
 					*/
 					/*esri.hide($('#icono_amp'));
 					esri.hide($('#excel'));*/
 					$('#icono_amp').attr('style','visibility:visible');					
 					prepararMapa();
 					iniciarRedesSociales(titulo, capas);
-					mapMain.on("click",ejecutarIdentifyTarea);
+					mapMain.on("click",ejecutarIdentifyTarea);					
 					$('#map').show();
 					$('#busqueda').show();
 					$('#ventana-mov').attr("style","display:block");					
@@ -379,12 +392,19 @@ $(document).ready(function()
 					Cambio realizado: No visualizar en el InfoWindow la información del campo OBJECTID
 					Fecha actualizado: 22/10/2015
 					Cambio realizado: Implementar carga de información empleando las clases IdentifyTask e IdentifyParameters (https://developers.arcgis.com/javascript/jssamples/find_popup.html)
+					Fecha actualizado: 26/10/2015
+					Cambio realizado: Dar atención al requerimiento "Probar si es posible desplegar el Identify cuando el mouse se coloca sobre el elemento geográfico. Actualmente se despliega cuando se hace click con el mouse. Cuando se sale de la región, ocultar el InfoWindow".
 					*/
 
 					//esri.hide(dojo.byId("carga"));
 					$("#excel").html(contenido);
 					iniciarRedesSociales(titulo, capas);
-					
+					mapMain.on("mouse-over",ejecutarIdentifyTarea);
+					mapMain.on("mouse-out",function()
+					{						
+						mapMain.graphics.clear();
+						mapMain.infoWindow.hide();
+					});
 					//esri.show(dojo.byId("excel"));
 					/*esri.show($("#excel"));
 					esri.show($('#icono_amp'));*/										
@@ -726,8 +746,7 @@ $(document).ready(function()
         identifyParametros.geometry = evt.mapPoint;
         identifyParametros.mapExtent = mapMain.extent;
        
-        var diferido = identifyTask.execute(identifyParametros);
-
+        var diferido = identifyTask.execute(identifyParametros);        
         diferido.addCallback(function(respuesta) {     
           // Callback para consultar todos los features    
           return dojo.map(respuesta, function(resultado) {

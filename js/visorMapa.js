@@ -206,9 +206,17 @@ $(document).ready(function()
 {
 	/*Fecha actualizado: 15/10/2015
 	Cambio realizado: Ocultar controles Maximizar y descarga Hoja de calculo al inicio de la petición
+	Fecha actualizado: 26/10/2015
+	Cambio realizado: Dar solución al requerimiento "Cargar por defecto el siguiente mapa: 
+•	Categoria  Contexto General
+•	SubCategoria  Indicadores Perfil Censo General 2005
+•	Indicador  Perfil Censo General 2005, según departamento y municipio"
+	Fecha actualizado: 28/10/2015
+	Cambio realizado: Suprimir icono de maximizado.
+
 	*/
 
-	//$('#Menu_combo_Container').hide();
+	$('#icono_amp').hide();
 	
 	var altodev = $(window).height();							
 	$("#icono_amp").css('top',altodev-90);
@@ -236,10 +244,11 @@ $(document).ready(function()
 		$(".linkselect-link").css('font-size','12px');	
 	}
 
-	$("#grupo").linkselect({style:"indicador"});
+	/*$("#grupo").linkselect({style:"indicador"});
 	$("#categ").linkselect({style:"indicador"});
-	$("#subcateg").linkselect();
-	//alert("Carga archivo primario");
+	$("#subcateg").linkselect();*/
+
+	
 	$.get(xmlUrl, function(xml) {					
 		var optionsCat = [];
 		var cat;
@@ -251,11 +260,14 @@ $(document).ready(function()
 		}else if(noGrupo >= totalGrupos){
 			noGrupo = totalGrupos - 1;
 		} else{
-			noGrupo = getRandomInt(0, $(xml).find("grupo").size()-1);
+			//noGrupo = getRandomInt(0, $(xml).find("grupo").size()-1);
 		}
 								
+		//var optionsGrupo = [];
 		var optionsGrupo = [];
-		
+		var optionsCateg = [];
+		var optionSubcat = [];
+		//Categoria
 		$(xml).find("grupo").each( function(index) {
 			if(todosGrupos || p == noGrupo){
 				var name = $(this).attr("name");
@@ -263,15 +275,76 @@ $(document).ready(function()
 				if(index == noGrupo){								
 					$("#grupo").val(value);					
 					cat = value;
+					//alert("Categoria =>"+cat);										
 					seleccionado = true;
+					//Subcategoria
+					$(xml).find("categoria").each(function(index1)
+					{
+						var namesubcateg = $(this).attr("name");
+						var valuesubcateg = $(this).attr("value");
+						//alert("Name=>"+namesubcateg);
+						//Seleccionamos la subcategoria Indicadores Perfil Censo General 2005						
+						if (namesubcateg == 'Indicadores Perfil Censo General 2005')
+						{							
+							//alert("Seleccionando Subcategoria =>"+valuesubcateg+","+namesubcateg);
+							$('#categ').val(valuesubcateg);
+							seleccionado = true;							
+							//Procesamiento indicador
+							$(xml).find("servicio").each(function(index2)
+							{
+								var nameservicio	=	$(this).attr("title");
+								var valueservicio	=	$(this).attr("id");								
+								if (nameservicio == 'Perfil Censo General 2005, según departamento y municipio')									
+								{									
+									//alert("Seleccionando Indicador =>"+valueservicio+","+nameservicio);
+									$('#subcateg').val(valueservicio);
+									seleccionado = true;									
+								}
+								else
+								{
+									seleccionado = false;
+								}
+								optionSubcat.push({value: valueservicio, text: nameservicio, selected: seleccionado});
+							})
+						}
+						else
+						{
+							seleccionado = false;
+						}
+						optionsCateg.push({value: valuesubcateg, text: namesubcateg, selected: seleccionado});
+					});					
 				} else {
 					seleccionado = false;
 				}				
 				optionsGrupo.push({value: value, text: name, selected: seleccionado});
+				//optionsGrupo.push({value: value, text: name});				
 			}
 		});
+		//Recorrido de los options
+		/*for (var cont=0; cont < optionsCateg.length; ++cont)
+		{			
+			if (optionsCateg[cont].selected == true)
+			{
+				alert("Item =>"+optionsCateg[cont].value+","+optionsCateg[cont].text+","+optionsCateg[cont].selected);
+				$('#categ').val(optionsCateg[cont].value);
+			}
+			else
+			{
+				alert("No seleccionado =>"+optionsCateg[cont].text);
+			}			
+		}*/
 		
-		$("#grupo").linkselect("replaceOptions", optionsGrupo);
+				
+		$("#grupo").linkselect({style:"indicador"});
+		$("#grupo").linkselect("replaceOptions",optionsGrupo);
+		$("#categ").linkselect({style:"indicador"});
+		$("#categ").linkselect("replaceOptions", optionsCateg);	
+		//return false;	
+		$("#subcateg").linkselect();
+		$('#subcateg').linkselect("replaceOptions", optionSubcat);
+		/*alert("Combos");
+		return false;
+		alert("Carga archivo primario");*/
 		
 		//Ocultar controles al inicio de la petición
 		//$('#icono_amp').attr('style','visibility:hidden');
