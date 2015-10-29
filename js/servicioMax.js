@@ -129,84 +129,34 @@ $(document).ready(function()
 	$('#gp_logo').hide();
 
 
-	function cargarOpcionesGrupo(grupo,categoria,indicador)
-	{
-		/*Fecha actualizado: 28/10/2015
-		Cambio realizado: Colocar archivo base XML como variable definida.*/
-		$.get(xmlUrl, function(xml) 
-		{
-			var optionsGrupo = [];
-			$("#grupo").append("<option value='0'>Seleccione</option>");
-			$(xml).find("grupo").each( function(index) 
-			{				
-				var name = $(this).attr("name");
-				var value = $(this).attr("value");
-				if(value==grupo){
-					$("#grupo").append("<option value='"+value+"' selected>"+name+"</option>");
-					buscarSubCategoria(value,categoria,indicador);
-				}else{
-					$("#grupo").append("<option value='"+value+"'>"+name+"</option>");
-				}
-			});
-		});
-	}
+	/*function cargarOpcionesGrupo(grupo,categoria,indicador)
+	{		
+		Fecha actualizado: 29/10/2015
+		Cambio realizado: Problema de cambio de parámetros desde la vista servicioMax.html
+		En archivo externo => combosMax.js
+	}*/
 
-	function buscarSubCategoria(grupo,categoria,indicador)
-	{
-		/*Fecha actualizado: 28/10/2015
-		Cambio realizado: Colocar archivo base XML como variable definida.*/
-
-		$.get(xmlUrl, function(xml) {
-			$("#categ").empty();
-			$("#categ").append("<option value='0'>Seleccione</option>");
-			$(xml).find("grupo[value='" + grupo + "']").each( function() 
-			{
-				$(this).find("categoria").each(function(index) 
-				{
-					var name = $(this).attr("name");
-					var value = $(this).attr("value");
-					if(value==categoria){
-						$("#categ").append("<option value='"+value+"' selected>"+name+"</option>");
-						setSubCat(categoria,indicador);
-					}else{
-						$("#categ").append("<option value='"+value+"'>"+name+"</option>");
-					}
-				});				
-			});
-		});
-	}
+	/*function buscarSubCategoria(grupo,categoria,indicador)
+	{		
+		Fecha actualizado: 29/10/2015
+		Cambio realizado: Problema de cambio de parámetros desde la vista servicioMax.html
+		En archivo externo => combosMax.js
+	}*/
 	
-	function setSubCat(categ,indicador)
+	
+	/*function setSubCat(categ,indicador)
 	{
-		/*Fecha actualizado: 28/10/2015
-		Cambio realizado: Colocar archivo base XML como variable definida.*/
+		Fecha actualizado: 29/10/2015
+		Cambio realizado: Problema de cambio de parámetros desde la vista servicioMax.html
+		En archivo externo => combosMax.js
+	}*/
 
-		$.get(xmlUrl, function(xml) {
-			$("#subcateg").empty();
-			$("#subcateg").append("<option value='0'>Seleccione</option>");
-			$(xml).find("categoria[value='" + categ + "']").each( function() 
-			{
-				console.log(categ);
-				$(this).find("servicio").each(function(index) {
-					
-						var title = $(this).attr("title");
-						var id = $(this).attr("id");
-						var service = "servicio.html?s=" + id;
-						if(id==indicador){
-							$("#subcateg").append("<option selected value='"+id+"'>"+title+"</option>");
-						}else{
-							$("#subcateg").append("<option value='"+id+"'>"+title+"</option>");
-						}
-				});
-					
-			});
-		});
-	}
-
-	function cargaIFrame(url) 
+	/*function cargaIFrame(url) 
 	{
-		window.location="servicioMax.html?s=" + url+"&c="+$("#grupo option:selected").val()+"&sc="+$("#categ option:selected").val();
-	}
+		Fecha actualizado: 29/10/2015
+		Cambio realizado: Problema de cambio de parámetros desde la vista servicioMax.html
+		En archivo externo => combosMax.js
+	}*/
 
 	function configuraIndicador(){						
 		dojo.query("#icono_fs").style("visibility", "hidden");
@@ -246,7 +196,7 @@ $(document).ready(function()
 	Fecha actualizado: 22/10/2015
 	Cambio realizado: Fix del Geocoder en ArcGIS 3.14
 	Fecha actualizado: 28/10/2015
-	Cambio realizado: Carga del mapa base, de acuerdo al requerimiento "Cambio Mapa Base en tonos grises"
+		Cambio realizado: Carga del mapa base, de acuerdo al requerimiento "Cambio Mapa Base en tonos grises"
 	*/	
 		tituloLeyenda = titulo;
         //var mapMain;
@@ -393,7 +343,7 @@ $(document).ready(function()
 					$('#busqueda').show();
 					$('#ventana-mov').attr("style","display:block");					
 					$('#marco-mov').attr("style","display:block");
-					$('#Menu_combo_Container').show();					
+					$('#Menu_combo_Container').show();
 				}
 
 				function prepararMapa() 

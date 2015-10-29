@@ -7,8 +7,9 @@
    	Cambio realizado: Capa de cargue del vinculo para informe en Excel
 	Fecha actualizado: 15/10/2015
 	Cambio realizado: Cargue de los iconos Descargar cuadro y Maximizar pantalla
+	Fecha actualizado: 29/10/2015
+	Cambio realizado: Inclusión del archivo externo combosMax.js, para solucionar problema de cambio de parámetros en las listas desplegables.
 	Observaciones: Vista correspondiente al despliegue sobre el botón "Ampliar este Indicador"-->
-	
 <html> 
   <head>  
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -293,14 +294,15 @@
 	<!-- Fecha actualizado: 15/10/2015
 	Cambio realizado: Fix para inclusión libreria de redes sociales -->
 	<!--<script src="js/vendor/widgets.js"></script>-->
-    <script>var dojoConfig = { parseOnLoad: true };</script> 
+    <script>var dojoConfig = { parseOnLoad: true };</script>
     <!-- API ArcGis 3.14-->
-    <!--<script src="https://serverapi.arcgisonline.com/jsapi/arcgis/3.4/"></script>--> 
+    <!--<script src="https://serverapi.arcgisonline.com/jsapi/arcgis/3.4/"></script>-->
     <script type="text/javascript" src="js/vendor/init.js"></script>
     <!-- Archivo externo de implementación JavaScript -->
     <script type="text/javascript" src="js/servicioMax.js"></script>
-    <script> 
-    /*Inclusión del archivo externo servicioMax.js*/  
+    <script type="text/javascript" src="js/combosMax.js"></script>
+    <script>
+    /*Inclusión del archivo externo servicioMax.js*/
 	
 	/*dojo.require("dijit.layout.BorderContainer");
       dojo.require("dijit.layout.ContentPane");
