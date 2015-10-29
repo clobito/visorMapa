@@ -9,6 +9,10 @@
 	Cambio realizado: Cargue de los iconos Descargar cuadro y Maximizar pantalla
 	Fecha actualizado: 29/10/2015
 	Cambio realizado: Inclusión del archivo externo combosMax.js, para solucionar problema de cambio de parámetros en las listas desplegables.
+	Fecha actualizado: 29/10/2015
+	Cambio realizado: Fix al Geocoder, no se permitía ingresar a registrar una búsqueda.
+	Fecha actualizado: 29/10/2015
+	Cambio realizado: Dar atención al requerimiento "Quitar logo del Dane en la parte inferior de la vista normal del geoportal. En las vistas maximizadas se deben colocar los logos actualizados de DANE y el Todos por un nuevo país. Medida 320px X 50px"
 	Observaciones: Vista correspondiente al despliegue sobre el botón "Ampliar este Indicador"-->
 <html> 
   <head>  
@@ -446,13 +450,13 @@
 								<div class="toolTipC" id="toolTipC">Categor&iacute;a:</div>
 								</td>
 								<td class="widthContenido">
-									<select id="grupo" name="grupo" title="" class="seleccionar" onChange="buscarSubCategoria(grupo.value)"></select>
+									<select id="grupo" name="grupo" title="" class="seleccionar linkselect" onChange="buscarSubCategoria(grupo.value)"></select>
 								</td>
 								<td  class="widthTitulo">
 									<div class="toolTipI" id="toolTipC">Sub-Categor&iacute;a:</div>
 								</td>
 								<td class="widthContenido">
-									<select id="categ" name="categ" title="" class="seleccionar" onChange="setSubCat(categ.value)"></select>
+									<select id="categ" name="categ" title="" class="seleccionar linkselect" onChange="setSubCat(categ.value)"></select>
 								</td>
 							</tr>
 							<tr class="heightTR">
@@ -460,7 +464,7 @@
 									<div class="toolTipC" id="toolTipI">Indicador:</div>
 								</td>
 								<td class="widthContenido" colspan="3">
-									<select id="subcateg" name="subcateg" style="width: 880px;" title="" class="seleccionar" onChange="cargaIFrame(subcateg.value)"></select>
+									<select id="subcateg" name="subcateg" style="width: 880px;" title="" class="seleccionar linkselect" onChange="cargaIFrame(subcateg.value)"></select>
 								</td>
 							</tr>
 						</table>
@@ -513,7 +517,7 @@
 					</div>
 				</div>
 			
-		   		<div id="busqueda"></div>			   	
+		   		<!--<div id="busqueda"></div>-->			   	
 			<!--<div id="excelMax"></div>
 				<div id="icono_fs" style="">
 					<a id="pantallacompleta" onclick="lanzarPantallaCompleta(document.documentElement);" target="_blank" title="Mostrar este Indicador en Pantalla Completa"><img src="css/img/pantalla_completa.png"></a>
@@ -530,10 +534,12 @@
 			</div>
 			<div id="gp_logo" class="sombra">
 				<a href="https://www.dane.gov.co/geoportal/" target="_blank" title="Ir al Geoportal">
-					<img src="css/img/geoportal.png">
+					<!--<img src="css/img/geoportal.png">-->
+					<img src="css/img/logoDaneNuevoPais.png" width="320px" height="50px"> 
 				</a>
 			</div>
     	</div>
+    	<div id="busqueda"></div>
     </div> 
   </body> 
 </html>

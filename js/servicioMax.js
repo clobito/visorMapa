@@ -5,7 +5,11 @@ Fecha actualizado: 28/10/2015
 Cambio realizado: Aplicación requerimientos realizados a los componentes del mapa en vista normal
 */
 $(document).ready(function()
-{	
+{
+	/*
+	Fecha actualizado: 29/10/2015
+	Cambio realizado: Activar la capa gp_logo para visualizar la imágen según requerimiento "Quitar logo del Dane en la parte inferior de la vista normal del geoportal. En las vistas maximizadas se deben colocar los logos actualizados de DANE y el Todos por un nuevo país."
+	*/	
 	dojo.require("dijit.layout.BorderContainer");
 	dojo.require("dijit.layout.ContentPane");
 	dojo.require("dijit.layout.AccordionContainer");
@@ -43,6 +47,8 @@ $(document).ready(function()
 		Cambio realizado: Actualización Path cargue archivo base XML
 		Fecha actualizado: 28/10/2015
 		Cambio realizado: Desactivación variable xmlUrl por ser global
+		Fecha actualizado: 29/10/2015
+	 	Cambio realizado: Activar la capa gp_logo para visualizar la imágen según requerimiento "Quitar logo del Dane en la parte inferior de la vista normal del geoportal. En las vistas maximizadas se deben colocar los logos actualizados de DANE y el Todos por un nuevo país."
 			  	*/
 		//XML del servidor Local
 		//var xmlUrl	=	"datosGruposTematicos.xml";
@@ -61,7 +67,7 @@ $(document).ready(function()
 		$('#marco-mov').attr("style","display:none");
 		$('#ventana-mov').attr("style","display:none");	
 		$('#busqueda').hide();
-		$('#gp_logo').hide();		
+		//$('#gp_logo').hide();		
 		var indicadores = new dojox.data.XmlStore({url: xmlUrl, rootItem: "servicio"});
 
 		var obtieneIndicador = function(items, request){
@@ -126,7 +132,7 @@ $(document).ready(function()
 	$('#marco-mov').attr("style","display:none");
 	$('#ventana-mov').attr("style","display:none");	
 	$('#busqueda').hide();
-	$('#gp_logo').hide();
+	//$('#gp_logo').hide();
 
 
 	/*function cargarOpcionesGrupo(grupo,categoria,indicador)
@@ -158,18 +164,28 @@ $(document).ready(function()
 		En archivo externo => combosMax.js
 	}*/
 
-	function configuraIndicador(){						
-		dojo.query("#icono_fs").style("visibility", "hidden");
-		dojo.query("#gp_logo").style("visibility", "hidden");
+	function configuraIndicador(){
+		/*Fecha actualizado: 15/10/2015.
+		Cambio realizado: Ocultar botón Maximizar Indicador
+		Fecha actualizado: 16/10/2015
+		Cambio realizado: Uso de Jquery en la Libreria ArcGIS 3.14
+		Fecha actualizado: 29/10/2015
+		Cambio realizado: Dar atención al requerimiento "Quitar logo del Dane en la parte inferior de la vista normal del geoportal. En las vistas maximizadas se deben colocar los logos actualizados de DANE y el Todos por un nuevo país. 
+		*/
+		/*dojo.query("#icono_fs").style("visibility", "hidden");
+		dojo.query("#gp_logo").style("visibility", "hidden");*/
+		$('#icono_fs').attr('style','visibility:visible');
 		
 		
 		//Cuando el navegador no es IE, se muestra el botón de full screen
 		if(!dojo.isIE && fs){
-			dojo.query("#icono_fs").style("visibility", "visible");
+			//dojo.query("#icono_fs").style("visibility", "visible");
+			$('#icono_fs').attr('style','visibility:visible');
 		}
 		
 		if(fs){
-			dojo.query("#gp_logo").style("visibility", "visible");
+			//dojo.query("#gp_logo").style("visibility", "visible");
+			$('#gp_logo').attr('style','visibility:visible');
 		}
 		
 		var peticionCapa = esri.request({
@@ -196,7 +212,9 @@ $(document).ready(function()
 	Fecha actualizado: 22/10/2015
 	Cambio realizado: Fix del Geocoder en ArcGIS 3.14
 	Fecha actualizado: 28/10/2015
-		Cambio realizado: Carga del mapa base, de acuerdo al requerimiento "Cambio Mapa Base en tonos grises"
+	Cambio realizado: Carga del mapa base, de acuerdo al requerimiento "Cambio Mapa Base en tonos grises".
+	Fecha actualizado: 29/10/2015
+	Cambio realizado: Dar atención al requerimiento "2.	La Selección de un elemento geográfico en el mapa debe cambiar a color a Cian. Actualmente se visualiza en color rojo."
 	*/	
 		tituloLeyenda = titulo;
         //var mapMain;
@@ -249,7 +267,7 @@ $(document).ready(function()
 					fillSymbol:  new SimpleFillSymbol(
 						SimpleFillSymbol.STYLE_SOLID,
 						new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
-							new Color([255, 0, 0]), 2),
+							new Color("#4BFFFF"), 2),
 						new Color([255, 255, 0, 0.25]))
 				},domConstruct.create("div"));
         		mapMain =	new Map("map",
@@ -454,12 +472,21 @@ $(document).ready(function()
 		Cambio realizado: Implementar cargue de redes sociales.
 		Fecha actualizado: 15/10/2015
 		Cambio realizado: Actualización de cargue de controles, empleando Jquery
+		Fecha actualizado: 29/10/2015
+		Cambio realizado: Visualización del icono para generar informe de excel.
 		Observaciones: Se toma fragmento del método iniciarMapa()*/
 		tituloLeyenda = titulo;
         
 		//Carga en el html el link del excel
 		//dojo.html.set(dojo.byId("excelMax"), contenido);
-		$('#excelMax').html(contenido);
+		with ($('#excelMax'))
+		{
+			attr('style','visibility:visible');
+			html(contenido);
+		}
+		
+
+
 		//Carga en el html el link de los metadatos
 		//dojo.html.set(dojo.byId("metadata"), metadata);
 		$('#metadata').html(metadata);
@@ -746,15 +773,11 @@ $(document).ready(function()
 	}
 
 	//Función para pantalla completa
-	function lanzarPantallaCompleta(element) {
-	  if(element.requestFullScreen) {
-		element.requestFullScreen();
-	  } else if(element.mozRequestFullScreen) {
-		element.mozRequestFullScreen();
-	  } else if(element.webkitRequestFullScreen) {
-		element.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
-	  }
-	}
+	/*function lanzarPantallaCompleta(element) {
+	  
+	  Fecha actualizado: 29/10/2015
+	  En archivo externo => combosMax.js
+	}*/
 
 	function efectosPantallaCompleta() {
 		

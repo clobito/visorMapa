@@ -5,10 +5,19 @@ Fecha creado: 14/10/2015
 */
 $(document).ready(function()
 {
-	/*Fecha actualizado: 23/10/2015
+	/*
+	Fecha actualizado: 16/10/2015
+	Cambio realizado: Establecer variable para obtener el XML Source como global. Se desactiva del método init()
+	Fecha actualizado: 19/10/2015
+	Cambio realizado: Establecer fuente XML desde el servidor DANE
+	Fecha actualizado: 23/10/2015
+	Cambio realizado: Actualización Path cargue archivo base XML
+	Fecha actualizado: 23/10/2015
 	Cambio realizado: Satisfacer requerimiento "Quitar controles fantasma cuando carga el mapa"
 	Fecha actualizado: 28/10/2015
-	Cambio realizado: Suprimir icono de maximizado.
+	Cambio realizado: Suprimir icono de maximizado.	
+	Fecha actualizado: 29/10/2015
+	Cambio realizado: Activar la capa gp_logo para visualizar la imágen según requerimiento "Quitar logo del Dane en la parte inferior de la vista normal del geoportal. En las vistas maximizadas se deben colocar los logos actualizados de DANE y el Todos por un nuevo país."
 	*/
 
 	dojo.require("dijit.layout.BorderContainer");
@@ -37,13 +46,7 @@ $(document).ready(function()
 
 	var identifyTask, identifyParametros, imagen = "", capaUrl = "", contenido = "", metadata = "", fs = false, leyendaCapas = [], infoCapas = [], ocultaCapas = [], leyendaIds = [], identifyIds = [];
 
-	/*Fecha actualizado: 16/10/2015
-	Cambio realizado: Establecer variable para obtener el XML Source como global. Se desactiva del método init()
-	Fecha actualizado: 19/10/2015
-	Cambio realizado: Establecer fuente XML desde el servidor DANE
-	Fecha actualizado: 23/10/2015
-	Cambio realizado: Actualización Path cargue archivo base XML
-	*/
+	
 	//var xmlUrl	=	"datosGruposTematicosNube.xml";
 	var xmlUrl		=	"dataSrc/datosGruposTematicosMapasige.xml";
 	
@@ -55,6 +58,8 @@ $(document).ready(function()
 	  Cambio realizado: Cargue del archivo fuente XML del sitio geoportal.
 	  Fecha actualizado: 16/10/2015
 	  Cambio realizado: Procesamiento del atributo identify. Cuando es único, se trae en un arrreglo en la posición 0; de lo contrario, se procesan en un arreglo quedando en varias posiciones.
+	  Fecha actualizado: 29/10/2015
+	  Cambio realizado: Activar la capa gp_logo para visualizar la imágen según requerimiento "Quitar logo del Dane en la parte inferior de la vista normal del geoportal. En las vistas maximizadas se deben colocar los logos actualizados de DANE y el Todos por un nuevo país."
 	  Observaciones: Fuente: http://www.w3schools.com/jsref/jsref_split.asp 
 	  */
 	  	//var xmlUrl	=	"datosGruposTematicos.xml";
@@ -71,7 +76,7 @@ $(document).ready(function()
 		$('#marco-mov').attr("style","display:none");
 		$('#ventana-mov').attr("style","display:none");	
 		$('#busqueda').hide();
-		$('#gp_logo').hide();
+		//$('#gp_logo').hide();
 		
 		var indicadores = new dojox.data.XmlStore({url: xmlUrl, rootItem: "servicio"});		
 
@@ -149,25 +154,30 @@ $(document).ready(function()
 	$('#marco-mov').attr("style","display:none");
 	$('#ventana-mov').attr("style","display:none");	
 	$('#busqueda').hide();
-	$('#gp_logo').hide();
+	//$('#gp_logo').hide();
 
     function configuraIndicador(){
 		/*Fecha actualizado: 15/10/2015.
 		Cambio realizado: Ocultar botón Maximizar Indicador
 		Fecha actualizado: 16/10/2015
-		Cambio realizado: Uso de Jquery en la Libreria ArcGIS 3.14*/
+		Cambio realizado: Uso de Jquery en la Libreria ArcGIS 3.14
+		Fecha actualizado: 29/10/2015
+		Cambio realizado: Dar atención al requerimiento "Quitar logo del Dane en la parte inferior de la vista normal del geoportal. En las vistas maximizadas se deben colocar los logos actualizados de DANE y el Todos por un nuevo país. 
+		Fecha actualizado: 29/10/2015
+		Cambio realizado: Actualizar visibilidad en la capa icono_amp
+		*/
 		$('#icono_amp').attr('style','visibility:hidden');
 		//dojo.query("#icono_amp").style("visibility", "hidden");
 		//dojo.query("#gp_logo").style("visibility", "hidden");
-		$('#gp_logo').attr('style','visibility:hidden');
+		//$('#gp_logo').attr('style','visibility:hidden');
 		//Cuando el navegador no es IE, se muestra el botón de full screen
 		if(!dojo.isIE && fs){
 			//dojo.query("#icono_amp").style("visibility", "visible");
-			$('#icono_amp').attr('visibility:visible');
+			$('#icono_amp').attr('style','visibility:visible');
 		}		
 		if(fs){
 			//dojo.query("#gp_logo").style("visibility", "visible");
-			$('#gp_logo').attr('visibility:visible');
+			$('#gp_logo').attr('style','visibility:visible');
 		}
 		
 		var peticionCapa = esri.request({
@@ -201,6 +211,8 @@ $(document).ready(function()
 		Cambio realizado: Fix del Geocoder en ArcGIS 3.14
 		Fecha actualizado: 26/10/2015
 		Cambio realizado: Carga del mapa base, de acuerdo al requerimiento "Cambio Mapa Base en tonos grises"
+		Fecha actualizado: 29/10/2015
+		Cambio realizado: Dar atención al requerimiento "2.	La Selección de un elemento geográfico en el mapa debe cambiar a color a Cian. Actualmente se visualiza en color rojo."
 		*/	
 		tituloLeyenda = titulo;
         //var mapMain;
@@ -247,14 +259,14 @@ $(document).ready(function()
         	domConstruct
         	)
         	{
-        		//Crear la ventana flotante de información
+        		//Crear la ventana flotante de información. Colores: Contorno, relleno
 				popUp 	=	new Popup(
 				{
 					fillSymbol:  new SimpleFillSymbol(
 						SimpleFillSymbol.STYLE_SOLID,
-						new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
-							new Color([255, 0, 0]), 2),
-						new Color([255, 255, 0, 0.25]))
+						new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,							
+							new Color("#4BFFFF"), 2),
+						new Color([255, 255, 0, 0.25]))						
 				},domConstruct.create("div"));
         		mapMain =	new Map("map",
         		{

@@ -85,5 +85,20 @@ function setSubCat(categ,indicador)
 
 function cargaIFrame(url) 
 {
-	window.location="servicioMax.html?s=" + url+"&c="+$("#grupo option:selected").val()+"&sc="+$("#categ option:selected").val();
+	/*Fecha actualizado: 29/10/2015
+	Cambio realizado: Cuando el indicador sea seleccione, no se debe cargar mapa*/	
+	if (url != 0)
+	{
+		window.location="servicioMax.html?s=" + url+"&c="+$("#grupo option:selected").val()+"&sc="+$("#categ option:selected").val();
+	}
+}
+
+function lanzarPantallaCompleta(element) {
+	  if(element.requestFullScreen) {
+		element.requestFullScreen();
+	  } else if(element.mozRequestFullScreen) {
+		element.mozRequestFullScreen();
+	  } else if(element.webkitRequestFullScreen) {
+		element.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
+	  }
 }
