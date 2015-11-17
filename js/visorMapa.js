@@ -16,7 +16,9 @@ function mostrarToolTip(title, e)
 }
 
 function cargaIFrame(url) 
-{
+{		
+	/*alert("Cargando servicio => "+url);
+	return false;*/
 	$("#ampliarservicio").attr("href", url.replace("servicio.html","servicioMax.html") + "&fullscreen=true&c="+$("#grupo").val()+"&sc="+$("#categ").val());	
 	$("#mapaservicio").attr("src", url);	
 }
@@ -53,16 +55,25 @@ function menuclic()
 }
 
 function buscarSubCategoria(grupo)
-{			
+{
+	/*Fecha actualizado: 30/10/2015
+	Cambio realizado: Dar atención al requerimiento "Cargar por defecto el siguiente mapa: 
+•	Categoria  Contexto General (ContextoCG2005)
+•	SubCategoria  Indicadores Perfil Censo General 2005 (Perfil)
+•	Indicador  Perfil Censo General 2005, según departamento y municipio (Perfil_1)"
+*/			
 	var optionsCat = [];
-	var seleccionado = false;
-	
+	var seleccionado = false;	
 	$.get(xmlUrl, function(xml) {
 	
 		$(xml).find("grupo[value='" + grupo + "']").each( function() {						
 			$(this).find("categoria").each(function(index) {
 				var name = $(this).attr("name");
 				var value = $(this).attr("value");
+				if (name == 'Indicadores Perfil Censo General 2005')
+				{
+					seleccionado = true;
+				}
 				optionsCat.push({value: value, text: name, selected: seleccionado});
 			})
 			
@@ -84,17 +95,21 @@ function buscarSubCategoria(grupo)
 }
 
 function setSubCat(categ) 
-{
-			
+{			
+	/*Fecha actualizado: 30/10/2015
+	Cambio realizado: Dar atención al requerimiento "Cargar por defecto el siguiente mapa: 
+•	Categoria  Contexto General (ContextoCG2005)
+•	SubCategoria  Indicadores Perfil Censo General 2005 (Perfil)
+•	Indicador  Perfil Censo General 2005, según departamento y municipio (Perfil_1)
+" => Redireccionar indicador Perfil Censo General 2005, según departamento y municipio*/
 	/*var inancho = $("a.indicador-link").width();
 	console.log(inancho);
 	$(".indicador-container").css('width',inancho);
 	var asd = $(".indicador-container").width();
-	console.log(asd);*/
+	console.log(asd);*/		
 	
 	var optionsSubCat = [];
-	var seleccionado = false;
-	
+	var seleccionado = false;	
 	$.get(xmlUrl, function(xml) 
 	{
 		
@@ -103,21 +118,22 @@ function setSubCat(categ)
 			console.log(categ);
 			$(this).find("servicio").each(function(index) {
 			
-				var title = $(this).attr("title");
-				var id = $(this).attr("id");
-				var service = "servicio.html?s=" + id;
+				var title 	= 	$(this).attr("title");
+				var id 		= 	$(this).attr("id");
+				var service = 	"servicio.html?s=" + id;
 				
-				if(index == categ){
-					seleccionado = true;
-					cargaIFrame(service);
+				//if(index == categ){
+				if(title == 'Perfil Censo General 2005, según departamento y municipio'){
+					seleccionado 	=	true;					
 				} else {
-					seleccionado = false;
-				}
+					seleccionado 	= 	false;
+				}				
 				optionsSubCat.push({value: service, text: title, selected: seleccionado});
 			})
 			
 		});
-		
+		//Verificación del arreglo
+
 		//Organiza el arreglo de Indicadores alfabéticamente
 		optionsSubCat.sort(function(a,b) {
 			var textA=a.text.toLowerCase(), textB=b.text.toLowerCase();
@@ -128,7 +144,8 @@ function setSubCat(categ)
 			return 0
 		});
 		
-		$("#subcateg").linkselect("replaceOptions", optionsSubCat);				
+		$("#subcateg").linkselect("replaceOptions", optionsSubCat);
+		cargaIFrame(service);				
 		
 	});
 				
@@ -206,7 +223,7 @@ $(document).ready(function()
 {
 	/*Fecha actualizado: 15/10/2015
 	Cambio realizado: Ocultar controles Maximizar y descarga Hoja de calculo al inicio de la petición
-	Fecha actualizado: 26/10/2015
+	Fecha actualizado: 26/10/2015, 30/10/2015
 	Cambio realizado: Dar solución al requerimiento "Cargar por defecto el siguiente mapa: 
 •	Categoria  Contexto General
 •	SubCategoria  Indicadores Perfil Censo General 2005
@@ -252,67 +269,33 @@ $(document).ready(function()
 	$.get(xmlUrl, function(xml) {					
 		var optionsCat = [];
 		var cat;
-		var seleccionado = false;					
-		var totalGrupos = $(xml).find("grupo").length;					
-
+		//Variables que controla elementos seleccionados
+		//Selección de la categoria (grupo)
+		var seleccionado 	=	false;
+		//Selección de subcategoria
+		var seleccSubcat 	=	false;
+		//Selección del indicador
+		var seleccIndica 	=	false;
+		var totalGrupos 	=	$(xml).find("grupo").length;
 		if(noGrupo > 0 && noGrupo < totalGrupos){
 			noGrupo = noGrupo - 1;
 		}else if(noGrupo >= totalGrupos){
 			noGrupo = totalGrupos - 1;
 		} else{
 			//noGrupo = getRandomInt(0, $(xml).find("grupo").size()-1);
-		}
+		}		
 								
 		//var optionsGrupo = [];
-		var optionsGrupo = [];
-		var optionsCateg = [];
-		var optionSubcat = [];
+		var optionsGrupo = [];		
+
 		//Categoria
 		$(xml).find("grupo").each( function(index) {
 			if(todosGrupos || p == noGrupo){
 				var name = $(this).attr("name");
 				var value = $(this).attr("value");
-				if(index == noGrupo){								
-					$("#grupo").val(value);					
-					cat = value;
-					//alert("Categoria =>"+cat);										
-					seleccionado = true;
-					//Subcategoria
-					$(xml).find("categoria").each(function(index1)
-					{
-						var namesubcateg = $(this).attr("name");
-						var valuesubcateg = $(this).attr("value");
-						//alert("Name=>"+namesubcateg);
-						//Seleccionamos la subcategoria Indicadores Perfil Censo General 2005						
-						if (namesubcateg == 'Indicadores Perfil Censo General 2005')
-						{							
-							//alert("Seleccionando Subcategoria =>"+valuesubcateg+","+namesubcateg);
-							$('#categ').val(valuesubcateg);
-							seleccionado = true;							
-							//Procesamiento indicador
-							$(xml).find("servicio").each(function(index2)
-							{
-								var nameservicio	=	$(this).attr("title");
-								var valueservicio	=	$(this).attr("id");								
-								if (nameservicio == 'Perfil Censo General 2005, según departamento y municipio')									
-								{									
-									//alert("Seleccionando Indicador =>"+valueservicio+","+nameservicio);
-									$('#subcateg').val(valueservicio);
-									seleccionado = true;									
-								}
-								else
-								{
-									seleccionado = false;
-								}
-								optionSubcat.push({value: valueservicio, text: nameservicio, selected: seleccionado});
-							})
-						}
-						else
-						{
-							seleccionado = false;
-						}
-						optionsCateg.push({value: valuesubcateg, text: namesubcateg, selected: seleccionado});
-					});					
+				if(index == noGrupo){	
+					cat = value;						
+					seleccionado = true;										
 				} else {
 					seleccionado = false;
 				}				
@@ -320,29 +303,26 @@ $(document).ready(function()
 				//optionsGrupo.push({value: value, text: name});				
 			}
 		});
-		//Recorrido de los options
+		//Recorrido de los options SubCategoria
 		/*for (var cont=0; cont < optionsCateg.length; ++cont)
 		{			
 			if (optionsCateg[cont].selected == true)
 			{
 				alert("Item =>"+optionsCateg[cont].value+","+optionsCateg[cont].text+","+optionsCateg[cont].selected);
-				$('#categ').val(optionsCateg[cont].value);
+				//$('#categ').val(optionsCateg[cont].value);
 			}
 			else
 			{
 				alert("No seleccionado =>"+optionsCateg[cont].text);
-			}			
+			}
 		}*/
-		
-				
 		$("#grupo").linkselect({style:"indicador"});
 		$("#grupo").linkselect("replaceOptions",optionsGrupo);
-		$("#categ").linkselect({style:"indicador"});
-		$("#categ").linkselect("replaceOptions", optionsCateg);	
-		//return false;	
+		$("#categ").linkselect({style:"indicador"});				
+		//$("#categ").linkselect("replaceOptions", optionsCateg);		
 		$("#subcateg").linkselect();
-		$('#subcateg').linkselect("replaceOptions", optionSubcat);
-		/*alert("Combos");
+		//$('#subcateg').linkselect("replaceOptions", optionSubcat);		
+		/*alert("Armado de combos al aplicar libreria =>"+$('#subcateg').val());
 		return false;
 		alert("Carga archivo primario");*/
 		
