@@ -367,14 +367,17 @@ $(document).ready(function()
 				function prepararMapa() 
 				{			
 					/*Fecha actualizado: 22/10/2015
-					Cambio realizado: Determinar los parametros para procesar los Identify del mapa*/
+					Cambio realizado: Determinar los parametros para procesar los Identify del mapa
+					Fecha actualizado: 18/11/2015
+					Cambio realizado: Determinar la opción de las capas para su cargue desde el servidor (LAYER_OPTION_TOP) => (LAYER_OPTION_ALL), de acuerdo al requerimiento "Verificar la respuesta del Identify cuando hay varias capas".
+					*/
 					
 					identifyTask 						= 	new IdentifyTask(capaUrl);
 					
 					identifyParametros					=	new IdentifyParameters();
 			        identifyParametros.tolerance 		=	1;
 			        identifyParametros.returnGeometry	=	true; 
-			        identifyParametros.layerOption 		=	IdentifyParameters.LAYER_OPTION_TOP;
+			        identifyParametros.layerOption 		=	IdentifyParameters.LAYER_OPTION_ALL;
 					identifyParametros.layerIds 		= 	identifyIds;
 			        identifyParametros.width  			= 	mapMain.width;
 			        identifyParametros.height 			= 	mapMain.height;
@@ -407,17 +410,19 @@ $(document).ready(function()
 					Cambio realizado: Implementar carga de información empleando las clases IdentifyTask y IdentifyParameters (https://developers.arcgis.com/javascript/jssamples/find_popup.html)
 					Fecha actualizado: 28/10/2015
 					Cambio realizado: Dar atención al requerimiento "Probar si es posible desplegar el Identify cuando el mouse se coloca sobre el elemento geográfico. Actualmente se despliega cuando se hace click con el mouse. Cuando se sale de la región, ocultar el InfoWindow".
+					Fecha actualizado: 18/11/2015
+					Cambio realizado: Desactivar el evento "mouse-out" para permitir navegar sobre las capas en el InfoWindow
 					*/
 
 					//esri.hide(dojo.byId("carga"));
 					$("#excel").html(contenido);
 					iniciarRedesSociales(titulo, capas);
 					mapMain.on("mouse-over",ejecutarIdentifyTarea);
-					mapMain.on("mouse-out",function()
+					/*mapMain.on("mouse-out",function()
 					{						
 						mapMain.graphics.clear();
 						mapMain.infoWindow.hide();
-					});
+					});*/
 					
 					//esri.show(dojo.byId("excel"));
 					/*esri.show($("#excel"));

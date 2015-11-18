@@ -40,12 +40,15 @@ $(document).ready(function()
 	//Variable global para la leyenda
 	var tituloLeyenda;		
 
-	//Fecha actualizado: 14/102015
+	//Fecha actualizado: 14/10/2015
 	//Cambio realizado: Variable global para el mapa, para usar la opción "Reestablecer a vista predeterminada"
+	//Fecha actualizado: 13/11/2015
+	//Cambio realizado: Declaración variable global para tomar la información del punto que se toma del mapa
 	var mapMain;
 
 	var identifyTask, identifyParametros, imagen = "", capaUrl = "", contenido = "", metadata = "", fs = false, leyendaCapas = [], infoCapas = [], ocultaCapas = [], leyendaIds = [], identifyIds = [];
 
+	var clickPoint;
 	
 	//var xmlUrl	=	"datosGruposTematicosNube.xml";
 	var xmlUrl		=	"dataSrc/datosGruposTematicosMapasige.xml";
@@ -213,6 +216,8 @@ $(document).ready(function()
 		Cambio realizado: Carga del mapa base, de acuerdo al requerimiento "Cambio Mapa Base en tonos grises"
 		Fecha actualizado: 29/10/2015
 		Cambio realizado: Dar atención al requerimiento "2.	La Selección de un elemento geográfico en el mapa debe cambiar a color a Cian. Actualmente se visualiza en color rojo."
+		Fecha actualizado: 13/11/2015
+		Cambio realizado: Dar atención al requerimiento "Cargue de información de las capas"
 		*/	
 		tituloLeyenda = titulo;
         //var mapMain;
@@ -281,7 +286,8 @@ $(document).ready(function()
         		var capaBase	=	new ArcGISTiledMapServiceLayer(capaOutlined);
         		//Adición de la capa al mapa
         		mapMain.addLayer(capaBase);
-        		//Carga de la capa en la nueva libreria
+        		//Carga de la capa correspondiente al mapa en la nueva libreria
+        		//alert("URL =>"+capaUrl);
         		var capa 		=	new ArcGISTiledMapServiceLayer(capaUrl);
         		//Adición de la capa al mapa
         		mapMain.addLayer(capa);
@@ -312,7 +318,7 @@ $(document).ready(function()
 				}
 
 				leyendaCapas.push({layer:capa,title:titulo,hideLayers:ocultaCapas});
-
+				//alert("Capas =>"+infoCapas.length);
 				//Implementación del geoCoder
 				geoCoder = new Geocoder(
 				{
@@ -335,7 +341,7 @@ $(document).ready(function()
 				mapMain.addLayer(new ArcGISDynamicMapServiceLayer(capaUrl,
 				{
 					opacity: 0.55
-				}));
+				}));				
 				//Método para procesar carga del mapa
 				function setLoadMap(event)
 				{
@@ -366,14 +372,18 @@ $(document).ready(function()
 				function prepararMapa() 
 				{			
 					/*Fecha actualizado: 22/10/2015
-					Cambio realizado: Determinar los parametros para procesar los Identify del mapa*/
+					Cambio realizado: Determinar los parametros para procesar los Identify del mapa
+					Fecha actualizado: 18/11/2015
+					Cambio realizado: Determinar la opción de las capas para su cargue desde el servidor (LAYER_OPTION_TOP) => (LAYER_OPTION_ALL), de acuerdo al requerimiento "Verificar la respuesta del Identify cuando hay varias capas".
+					*/
+					//alert("Cantidad identify =>"+identifyIds.length+",URL =>"+capaUrl);
 					
 					identifyTask 						= 	new IdentifyTask(capaUrl);
 					
 					identifyParametros					=	new IdentifyParameters();
 			        identifyParametros.tolerance 		=	1;
-			        identifyParametros.returnGeometry	=	true; 
-			        identifyParametros.layerOption 		=	IdentifyParameters.LAYER_OPTION_TOP;
+			        identifyParametros.returnGeometry	=	true; 			        
+			        identifyParametros.layerOption 		=	IdentifyParameters.LAYER_OPTION_ALL;
 					identifyParametros.layerIds 		= 	identifyIds;
 			        identifyParametros.width  			= 	mapMain.width;
 			        identifyParametros.height 			= 	mapMain.height;
@@ -406,19 +416,21 @@ $(document).ready(function()
 					Cambio realizado: Implementar carga de información empleando las clases IdentifyTask e IdentifyParameters (https://developers.arcgis.com/javascript/jssamples/find_popup.html)
 					Fecha actualizado: 26/10/2015
 					Cambio realizado: Dar atención al requerimiento "Probar si es posible desplegar el Identify cuando el mouse se coloca sobre el elemento geográfico. Actualmente se despliega cuando se hace click con el mouse. Cuando se sale de la región, ocultar el InfoWindow".
+					Fecha actualizado: 18/11/2015
+					Cambio realizado: Desactivar el evento "mouse-out" para permitir navegar sobre las capas en el InfoWindow.
 					*/
 
 					//esri.hide(dojo.byId("carga"));
 					$("#excel").html(contenido);
-					iniciarRedesSociales(titulo, capas);
+					/*iniciarRedesSociales(titulo, capas);*/
 					mapMain.on("mouse-over",ejecutarIdentifyTarea);
-					mapMain.on("mouse-out",function()
+					/*mapMain.on("mouse-out",function()
 					{						
 						mapMain.graphics.clear();
 						mapMain.infoWindow.hide();
 					});
 					//esri.show(dojo.byId("excel"));
-					/*esri.show($("#excel"));
+					esri.show($("#excel"));
 					esri.show($('#icono_amp'));*/										
 					$(".viewRestore").click(function()
 					{
@@ -458,8 +470,17 @@ $(document).ready(function()
 					  "callbackParamName": "callback"
 					});
 					peticionLeyenda.then(peticionLeyendaExitosa, peticionFallida);
-					$("#metadata").html(metadata);				
-				}				
+					$("#metadata").html(metadata);
+				}
+				//Evento que se dispara al cargar las capas del mapa
+				mapEvents	=	mapMain.on("layer-add-result", setLoadInfoLayer);
+				function setLoadInfoLayer(event)
+				{
+					//alert("Ingresa =>"+event);
+					tasks	=	dojo.map(event,function(result){
+						return new IdentifyTask(result.layer.url);
+					});
+				}
 				
         	});
 		//var limites = new esri.geometry.Extent({"xmin":-9495735,"ymin":-83164,"xmax":-7186725,"ymax":1406441,"spatialReference":{"wkid":102100}});
@@ -752,20 +773,28 @@ $(document).ready(function()
 		/*Fecha actualizado: 22/10/2015
 		Cambio realizado: Cambio "map" => "mapMain".
 		Fecha actualizado: 22/10/2015
-		Cambio realizado: Adición titulo al InfoWindow
+		Cambio realizado: Adición titulo al InfoWindow		
+		Observaciones: Tomado de la Url => https://developers.arcgis.com/javascript/jssamples/find_popup.html. Tomado de la Url => https://geonet.esri.com/thread/57637 => http://jsfiddle.net/URpaW/44/ (Ver 3.1). FUENTE: https://geonet.esri.com/thread/50961 (código original).
 		*/
 		
-        identifyParametros.geometry = evt.mapPoint;
-        identifyParametros.mapExtent = mapMain.extent;
+		
+        identifyParametros.geometry =	evt.mapPoint;
+        identifyParametros.mapExtent= 	mapMain.extent;
+        identifyParametros.width	=	mapMain.width;
+        identifyParametros.height	=	mapMain.height;
        
         var diferido = identifyTask.execute(identifyParametros);        
-        diferido.addCallback(function(respuesta) {     
+        diferido.addCallback(function(respuesta) {
+        	//alert("Resp =>"+respuesta);
           // Callback para consultar todos los features    
           return dojo.map(respuesta, function(resultado) {
+          	//return array.map(respuesta, function(resultado) {
             var feature = resultado.feature;
 			var cadenaInfo = "<b>" + resultado.layerName + "</b><br><br>";			
-			// Guarda el array de todos los features identificados.
+			// Guarda el array de todos los features identificados.			
 			for(var atributo in feature.attributes) {
+				//alert("Atributo =>"+atributo);
+				//alert("Render feature =>"+feature.attributes[atributo]);
 				if(atributo != "OBJECTID" 
 					&& atributo != "OBJECTID_1" 
 					&& atributo != "Shape" 
@@ -773,24 +802,28 @@ $(document).ready(function()
 					&& atributo != "Shape_Area" 
 					&& atributo != "Shape_Leng" 
 					&& feature.attributes[atributo].toLowerCase() != "null") {
-					cadenaInfo += "<b>" + atributo + "</b>: " + feature.attributes[atributo] + "<br>";
+						cadenaInfo += "<b>" + atributo + "</b>: " + feature.attributes[atributo] + "<br>";
 				}
 			}
-			
+			//alert("Resultado =>"+cadenaInfo);
 			//var template = 	new InfoTemplate("", cadenaInfo);
 			var template = new esri.InfoTemplate();			
 			template.setTitle(resultado.layerName);
+			//alert("Resultado =>"+resultado.layerName);
 			template.setContent(cadenaInfo);
 			feature.setInfoTemplate(template);            
             return feature;
           });          
         });
+		
+					
         // Muestra el array de todos los features identificados.
        
         mapMain.infoWindow.setFeatures([ diferido ]);
         mapMain.infoWindow.show(evt.mapPoint);		
 	}
 
+	
 	function buscaEnArray(arr, obj) {
 		for(var i=0; i<arr.length; i++) {
 			if (arr[i] == obj) 
