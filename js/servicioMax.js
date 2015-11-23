@@ -49,7 +49,9 @@ $(document).ready(function()
 		Cambio realizado: Desactivación variable xmlUrl por ser global
 		Fecha actualizado: 29/10/2015
 	 	Cambio realizado: Activar la capa gp_logo para visualizar la imágen según requerimiento "Quitar logo del Dane en la parte inferior de la vista normal del geoportal. En las vistas maximizadas se deben colocar los logos actualizados de DANE y el Todos por un nuevo país."
-			  	*/
+	 	Fecha actualizado: 23/11/2015
+	  	Cambio realizado: Atender el requerimiento "La descarga de datos (Excel, Pdf, etc) solo funciona correctamente con el .xls". Se realiza el análisis de extensiones .xls, .pdf y otra para generar icono y vinculo.
+		*/
 		//XML del servidor Local
 		//var xmlUrl	=	"datosGruposTematicos.xml";
 		//XML del servidor Nube (Contingencia)
@@ -97,12 +99,39 @@ $(document).ready(function()
 			capaUrl = indicadores.getValue(item, "@layer");
 	
 			//Url del Archivo Excel u otro formato
+			//Generar extensión. FUENTE: http://stackoverflow.com/questions/2400312/substring-with-reverse-index
 			if(indicadores.getValue(item, "@table") != null && indicadores.getValue(item, "@table") != "")
 			{
-				contenido = "<a href='" + indicadores.getValue(item, "@table") +  "' id='tabla' style='cursor:pointer;'>";
-				contenido += "<img src='sige-theme/images/sige/servicios/descargar.png' alt='Descargue el Excel' title='Descargue el Excel'>";
+				var ext 	=	indicadores.getValue(item, "@table").slice(-3);
+				//Construcción del vinculo y su imágen asociada según extensión
+				switch (ext)
+				{
+					//Adjuntos en excel
+					//Icono que requiere ser actualizado
+					case 'xls':
+					{
+						contenido = "<a href='" + indicadores.getValue(item, "@table") +  "' id='tabla' style='cursor:pointer;'>";
+						contenido += "<img src='sige-theme/images/sige/servicios/descargar.png' alt='Descargue el Excel' title='Descargue el Excel'>";
+						break;
+					}
+					//Adjuntos en pdf - Se abren en otra ventana
+					//Icono de prueba...
+					case 'pdf':
+					{
+						contenido = "<a href='" + indicadores.getValue(item, "@table") +  "' id='tabla' style='cursor:pointer;' target='_blank'>";
+						contenido += "<img src='sige-theme/images/sige/servicios/descargarpdf.png' alt='Descargue el PDF' title='Descargue el PDF'>";
+						break;
+					}
+					//Adjuntos en otro formato
+					//Icono de prueba...
+					default:
+					{
+						contenido = "<a href='" + indicadores.getValue(item, "@table") +  "' id='tabla' style='cursor:pointer;' target='_blank'>";
+						contenido += "<img src='sige-theme/images/sige/servicios/descargarotro.png' alt='Descargue el informe' title='Descargue el informe'>";
+					}
+				}
+				//contenido += "<img src='sige-theme/images/sige/servicios/descargar.png' alt='Descargue el Excel' title='Descargue el Excel'>";
 				contenido += "</a>";
-			}
 
 			//Url de los metadatos del indicador
 			if(indicadores.getValue(item, "@metadata") != null && indicadores.getValue(item, "@metadata") != "")
