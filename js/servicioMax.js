@@ -6,8 +6,7 @@ Cambio realizado: Aplicación requerimientos realizados a los componentes del ma
 */
 $(document).ready(function()
 {
-	/*
-	Fecha actualizado: 29/10/2015
+	/*Fecha actualizado: 29/10/2015
 	Cambio realizado: Activar la capa gp_logo para visualizar la imágen según requerimiento "Quitar logo del Dane en la parte inferior de la vista normal del geoportal. En las vistas maximizadas se deben colocar los logos actualizados de DANE y el Todos por un nuevo país."
 	*/	
 	dojo.require("dijit.layout.BorderContainer");
@@ -35,7 +34,6 @@ $(document).ready(function()
 	var xmlUrl		=	"dataSrc/datosGruposTematicosMapasige.xml";
 
 	var map, identifyTarea, identifyParametros, imagen = "", capaUrl = "", contenido = "", metadata = "", fs = false, leyendaCapas = [], infoCapas = [], ocultaCapas = [], leyendaIds = [], identifyIds = [];
-	
 	function init() {
     	/*Fecha actualizado: 14/10/2015
 	  	Cambio realizado: Actualización del archivo fuente XML.
@@ -51,6 +49,8 @@ $(document).ready(function()
 	 	Cambio realizado: Activar la capa gp_logo para visualizar la imágen según requerimiento "Quitar logo del Dane en la parte inferior de la vista normal del geoportal. En las vistas maximizadas se deben colocar los logos actualizados de DANE y el Todos por un nuevo país."
 	 	Fecha actualizado: 23/11/2015
 	  	Cambio realizado: Atender el requerimiento "La descarga de datos (Excel, Pdf, etc) solo funciona correctamente con el .xls". Se realiza el análisis de extensiones .xls, .pdf y otra para generar icono y vinculo.
+	  	Fecha actualizado: 25/11/2015
+	  	Cambio realizado: Fix de cierre de bloque al construir la Url para descarga del cuadro
 		*/
 		//XML del servidor Local
 		//var xmlUrl	=	"datosGruposTematicos.xml";
@@ -62,7 +62,7 @@ $(document).ready(function()
 
 		with ($('#carga'))
 		{
-			attr('style','width:100%; height:450px; background-color:#EBFFFF; text-align: center; vertical-align: middle;')
+			attr('style','width:100%; height:450px; background-color:#EBFFFF; text-align: center; vertical-align: middle;');
 			html('<img src="img/loading.gif" width="400" height="400"/>');			
 		}
 		//Ocultar las ventanas del mapa, incluyendo Geocoder hasta no haberse cargado
@@ -72,9 +72,10 @@ $(document).ready(function()
 		//$('#gp_logo').hide();		
 		var indicadores = new dojox.data.XmlStore({url: xmlUrl, rootItem: "servicio"});
 
-		var obtieneIndicador = function(items, request){
+		var obtieneIndicador = function(items, request)
+		{
                     
-                        var item = items[0];
+            var item = items[0];
 
 			//****************************************************************************//
 			//																			  //	
@@ -132,6 +133,7 @@ $(document).ready(function()
 				}
 				//contenido += "<img src='sige-theme/images/sige/servicios/descargar.png' alt='Descargue el Excel' title='Descargue el Excel'>";
 				contenido += "</a>";
+			}	
 
 			//Url de los metadatos del indicador
 			if(indicadores.getValue(item, "@metadata") != null && indicadores.getValue(item, "@metadata") != "")
@@ -144,13 +146,12 @@ $(document).ready(function()
 				fs = true;
 			}
 			//Fin de Parámetros Editables			
-			configuraIndicador();
-			
+			configuraIndicador();			
 		}
 		
 		var request = indicadores.fetch({onComplete: obtieneIndicador, query: {"@id":servicio}, queryOptions: {ignoreCase: true} });
     }
-    dojo.ready(init);
+	dojo.ready(init);
     //Mantenimiento a la vista servicio.html    
     with ($('#carga'))
 	{
@@ -229,22 +230,23 @@ $(document).ready(function()
 		
 	}
 
-	function iniciarMapa(titulo, capas) {
-	/*Fecha actualizado: 13/10/2015
-	Cambio realizado: Adaptación librerias ArcGIS 3.14: map, ArcGISTiledMapServiceLayer y Geocoder
-	Fecha actualizado: 14/10/2015
-	Cambio realizado: Desactivar definición del mapa. Pasa a ser definición global
-	Fecha actualizado: 21/10/2015
-	Cambio realizado: Inclusión de los módulos tasks/IdentifyTask y tasks/IdentifyParameters
-	Fecha actualizado: 22/10/2015
-	Cambio realizado: Inclusión de los módulos layers/ArcGISDynamicMapServiceLayer, dijit/Popup, [dojo/_base/array, dojo/dom-construct (módulos del dojo framework)]
-	Fecha actualizado: 22/10/2015
-	Cambio realizado: Fix del Geocoder en ArcGIS 3.14
-	Fecha actualizado: 28/10/2015
-	Cambio realizado: Carga del mapa base, de acuerdo al requerimiento "Cambio Mapa Base en tonos grises".
-	Fecha actualizado: 29/10/2015
-	Cambio realizado: Dar atención al requerimiento "2.	La Selección de un elemento geográfico en el mapa debe cambiar a color a Cian. Actualmente se visualiza en color rojo."
-	*/	
+	function iniciarMapa(titulo, capas) 
+	{
+		/*Fecha actualizado: 13/10/2015
+		Cambio realizado: Adaptación librerias ArcGIS 3.14: map, ArcGISTiledMapServiceLayer y Geocoder
+		Fecha actualizado: 14/10/2015
+		Cambio realizado: Desactivar definición del mapa. Pasa a ser definición global
+		Fecha actualizado: 21/10/2015
+		Cambio realizado: Inclusión de los módulos tasks/IdentifyTask y tasks/IdentifyParameters
+		Fecha actualizado: 22/10/2015
+		Cambio realizado: Inclusión de los módulos layers/ArcGISDynamicMapServiceLayer, dijit/Popup, [dojo/_base/array, dojo/dom-construct (módulos del dojo framework)]
+		Fecha actualizado: 22/10/2015
+		Cambio realizado: Fix del Geocoder en ArcGIS 3.14
+		Fecha actualizado: 28/10/2015
+		Cambio realizado: Carga del mapa base, de acuerdo al requerimiento "Cambio Mapa Base en tonos grises".
+		Fecha actualizado: 29/10/2015
+		Cambio realizado: Dar atención al requerimiento "2.	La Selección de un elemento geográfico en el mapa debe cambiar a color a Cian. Actualmente se visualiza en color rojo."
+		*/	
 		tituloLeyenda = titulo;
         //var mapMain;
         var geoCoder;
